@@ -39,7 +39,7 @@ def emailsend(request):
     ENV_FILE = BASE_DIR / ".env"
     load_dotenv(ENV_FILE)
     naver_key = os.getenv('naver_key')
-    print('네이버인증키 : ',naver_key)
+    # print('네이버인증키 : ',naver_key)
 
     # 3. 인증키난수생성
     # chars = ['0','1','2','3','4','5','6','7','8','9','a','z']
@@ -50,20 +50,21 @@ def emailsend(request):
     print(e_key)
 
     # 4. 이메일내용 - 글자로 이메일발송
-    sendEmail = 'onulee@naver.com'
+    sendEmail = 'tracey212@naver.com'
     content = f'이메일확인 인증키 : {e_key}'
-    text = f'''
-        <html>
-            <body>
-                <h2>[ 이메일확인 인증키 ]</h2>
-                <p>{e_key}</p>
-            </body>
-        </html>
-    '''
-
+    
+    # text = f'''
+    #     <html>
+    #         <body>
+    #             <h2>[ 이메일확인 인증키 ]</h2>
+    #             <p>{e_key}</p>
+    #         </body>
+    #     </html>
+    # '''
+            
     # 5. 정보그룹핑
-    # msg = MIMEText(content)
-    msg = MIMEText(text,'html')
+    msg = MIMEText(content)
+    # msg = MIMEText(text,'html')
     msg['From'] = sendEmail # 보내는사람
     msg['To'] = email                # 받는사람
     msg['Subject'] = '이메일 TEST2'    # 제목
@@ -86,5 +87,9 @@ def step01(request):
     ENV_FILE = BASE_DIR / ".env"
     load_dotenv(ENV_FILE)
     naver_key = os.getenv('naver_key')
-    print('네이버인증키 : ',naver_key)
+    # print('네이버인증키 : ',naver_key)
     return render(request, 'step01.html')
+
+def step02(request):
+    return render(request, 'step02.html')
+
