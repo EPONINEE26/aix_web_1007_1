@@ -1,0 +1,440 @@
+{% url students:swrite %}
+디장고 app name 을 가지고 url
+기존 것의 이름을 변경하고 새로운 것을 그래도 앱 이름을 그대로 두면 변경된 것을 찾아 처리함 
+
+
+[ 디장고 순서 ]
+python -m django startproject project01
+django-admin startproject project01
+1. 서버세팅
+- 프로젝트 생성
+- 앱생성
+- setting.py 추가
+
+2. app추가
+- setting추가
+- urls.py
+- home>urls.py
+- home>views.py
+- templates폴더 생성 >index.html생성
+
+3. static 폴더 설정
+- static : css,js,images
+- /static/images/1.jpg 링크 : /static
+
+4. html 소스가져오기
+- home > templates 폴더에
+index.html, main.html 가져와서 넣기
+
+5. 외부링크
+<link rel='stylesheet' href='/static/css/style.css'>
+
+-----------------------------
+[ 프로그램 진행 ]
+1. app추가
+- member app 생성
+
+2. setting.py 추가
+
+3. urls.py 추가
+path('member/', include('member.urls')),
+
+4. member > urls.py
+- app_name='member' / login/ 추가
+
+5. views.py
+
+6. templates 생성
+7. login.html 파일 가져오기
+
+-----------------------------------
+[ db생성, 슈퍼관리자등록 ]
+1. migrate 생성
+2. createsuperuser 생성
+
+[ 로그인 프로그램 ]
+<로그인세팅>
+1. models.py class추가
+2. admin.py 추가
+3. makemigrations
+4. migrate
+5. 1명 인원 추가
+- member.csv import 시켜보기
+<로그인프로그램설계>
+1. views.py
+- get부분
+- post부분
+
+2. login.html
+- form action, method,name 확인
+- input name 확인
+- id,pw,remberId 데이터가 넘어오는지 확인
+
+<db연결>
+- db와 연결 데이터가 있는지 확인
+- id,pw가 있으면 : 로그인성공
+- session 로그인정보 추가
+(session_id,session_nickname)
+- index.html
+(session정보 추가)
+- 로그아웃,닉네임 부분 수정
+- id,pw가 없으면 : 로그인실패
+
+3. 로그아웃
+- urls.py 연결
+- views.py 섹션종료 ( clear )
+- login.html > temp:2 보냄
+
+4. 쿠키설정
+- response.set_cookie 설정
+- response.delete_cookie 삭제
+- request.COOKIES.get('cook_id','') 쿠키검색
+
+5. login.html 쿠키확인
+- checkbox에 추가
+{% if cook_id %}checked{% endif %}
+- inputbox에 추가
+{% if cook_id %}value={{cook_id}}{% endif %}
+
+6. 회원가입
+- index.html 링크추가
+- templates > mwrite.html 파일
+- urls.py > mwrite/ 추가
+- view.py > mwrite
+( 데이터 확인 )
+
+7. 회원정보수정
+- templates > mupdate.html 추가
+- urls.py / ( <str:id> )
+- views.py
+1) Member데이터 검색
+2) context 전달
+3) tel : split('-') 분리
+- mupdate.html
+1) value = '{{member.id}}'
+2) select
+3) radio
+4) checkbox
+
+
+
+
+
+
+
+
+
+
+
+
+
+[ 1. 디렉토리 이동 ]
+cd p1007 폴더이동
+
+[ 2. 프로젝트 생성 ]
+django-admin startproject project01
+python -m django startproject project01
+
+[ 3. 디렉토리 이동 ]
+cd spro01
+
+[ 4. app생성 ]
+python manage.py startapp students
+python manage.py startapp home
+python -m manage.py startapp event
+python manage.py startapp member
+python manage.py startapp board
+
+python manage.py startapp customer
+
+[ 5. cmd창 생성 ]
+win+r > cmd 입력후 엔터키
+
+[ 6. cmd창에서 디렉토리 위치 이동 ]
+cd C:\workspace\web\aix_web_1007\p1007\spjt04
+cd C:\workspace\web\aix_web_1007\p1013\project01
+cd C:\workspace\web\aix_web_1007\p1014\project01
+cd C:\workspace\web\aix_web_1007\p1015\project01
+cd C:\workspace\web\aix_web_1007\p1016\project01
+
+[ 7. 서버구동 ]
+python manage.py runserver
+python -u manage.py runserver 0.0.0.0:8000
+ipconfig  : 자신의 ip를 볼수 있음.(공유기ip)
+192.168.0.58:8000
+127.0.0.1:8000
+localhost:8000
+
+[ 8. 서버접속 ]
+http://127.0.0.1:8000/
+
+[ 9. sjpt04> setting.py ]
+import os 입력
+INSTALLED_APPS = [
+'students',
+]
+LANGUAGE_CODE = 'ko-kr'
+TIME_ZONE = 'Asia/Seoul'
+
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static'),
+]
+
+
+[ 10. sjpt04> urls.py ]
+from django.urls import path,include
+urlpatterns = [
+path('admin/', admin.site.urls),
+path('/', include('students.urls')),
+path('', include('home.urls')),
+]
+
+[ 11. students > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name='students'
+urlpatterns = [
+    path('swrite/', views.swrite, name='swrite'),
+]
+
+[ 11-2. home > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name=''
+urlpatterns = [
+    path('', views.index,name='index'),
+]
+
+
+[ 12. students > views.py ]
+def swrite(request):
+    return render(request,'swrite.html')
+
+[ 12-2. home > views.py ]
+from django.shortcuts import render
+
+# 메인페이지
+def index(request):
+    return render(request,'index.html')
+
+
+[ 13. students > templates 폴더생성 ]
+swrite.html 파일 생성
+
+[ 13-2. home> templates 폴더생성 ]
+index.html 파일 생성
+
+
+----------------------------
+
+[14. db계정 생성 ]
+# db생성
+python manage.py migrate
+# db생성할것이 있는지 확인
+python manage.py makemigrations
+
+
+[ 15. 관리자 계정 생성 ]
+python manage.py createsuperuser
+admin
+admin@naver.com
+1111
+
+[ 16. 관리자페이지 확인 ]
+http://127.0.0.1:8000/admin
+admin
+1111
+
+
+[ 17. models.py  - 아래내용 입력 ]
+from django.db import models
+
+class Stu(models.Model):
+    name = models.CharField(max_length=100)
+    major = models.CharField(max_length=100)
+    age = models.IntegerField(default=0)
+    grade = models.IntegerField(default=0)
+    gender = models.CharField(max_length=30)
+
+    def __str__(self):
+         return f'{self.name},{self.major},{self.age},{self.grade},{self.gender}'
+
+[ 18. admin.py 파일 - 아래 내용 복사 ]
+from django.contrib import admin
+from students.models import Stu
+
+admin.site.register(Stu)
+
+[ 19. class적용 ]
+# db생성할것이 있는지 확인
+python manage.py makemigrations
+ # db생성
+python manage.py migrate
+
+
+[ 20. shell 에서 학생들을 등록 ]
+# 파이썬 프로그램을 실행
+python manage.py shell
+[ 저장 ]
+qs = Stu(name='홍길동',major='국문과',age=20,grade=1,gender='남자')
+qs.save()
+qs = Stu(name='유관순',major='영문과',age=22,grade=3,gender='여자')
+qs.save()
+qs = Stu(name='이순신',major='수학과',age=21,grade=2,gender='남자')
+qs.save()
+qs = Stu(name='강감찬',major='역사학과',age=24,grade=4,gender='남자')
+qs.save()
+
+[ 21. 검색 ]
+Stu.objects.get(name='홍길동')   #1개
+Stu.objects.all()                         #여러개-리스트
+Stu.objects.filter(name='홍길동') #여러개-리스트
+Stu.objects.filter(name__contains='홍')
+Stu.objects.filter(name__startswith='홍')
+Stu.objects.filter(name__endswith='순')
+Stu.objects.filter(age__lt='23')
+Stu.objects.filter(age__lte='23')
+Stu.objects.filter(age__gt='23')
+Stu.objects.filter(age__gte='23')
+Stu.objects.filter(id__in=[1,2])
+
+
+[ 폴더검색 위치 ]
+./  : 현재폴더에서 검색
+../ : 상위폴더에서 검색
+/   : root폴더에서 검색
+
+[ 서버종료 ]
+ctrl + c : 종료됨이병호  [오후 1:09]
+[ 1. 디렉토리 이동 ]
+cd p1007 폴더이동
+
+[ 2. 프로젝트 생성 ]
+django-admin startproject spro01
+
+[ 3. 디렉토리 이동 ]
+cd spro01
+
+[ 4. app생성 ]
+python manage.py startapp students
+python manage.py startapp home
+
+[ 5. cmd창 생성 ]
+win+r > cmd 입력후 엔터키
+
+[ 6. cmd창에서 디렉토리 위치 이동 ]
+cd C:\workspace\web\aix_web_1007\p1007\spjt04
+
+[ 7. 서버구동 ]
+python manage.py runserver
+python -u manage.py runserver 0.0.0.0:8000
+ipconfig  : 자신의 ip를 볼수 있음.(공유기ip)
+192.168.0.58:8000
+127.0.0.1:8000
+localhost:8000
+
+[ 8. 서버접속 ]
+http://127.0.0.1:8000/
+
+[ 9. sjpt04> setting.py ]
+INSTALLED_APPS = [
+'students',
+]
+LANGUAGE_CODE = 'ko-kr'
+TIME_ZONE = 'Asia/Seoul'
+
+
+[ 10. sjpt04> urls.py ]
+from django.urls import path,include
+urlpatterns = [
+path('admin/', admin.site.urls),
+path('students/', include('students.urls')),
+path('', include('home.urls')),
+]
+
+[ 11. students > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name='students'
+urlpatterns = [
+    path('swrite/', views.swrite, name='swrite'),
+]
+
+[ 11-2. home > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name=''
+urlpatterns = [
+    path('', views.index,name='index'),
+]
+
+
+[ 12. students > views.py ]
+def swrite(request):
+    return render(request,'swrite.html')
+
+[ 12-2. home > views.py ]
+from django.shortcuts import render
+
+# 메인페이지
+def index(request):
+    return render(request,'index.html')
+
+
+[ 13. students > templates 폴더생성 ]
+swrite.html 파일 생성
+
+[ 13-2. home> templates 폴더생성 ]
+index.html 파일 생성
+
+
+----------------------------
+
+[14. db계정 생성 ]
+# db생성
+python manage.py migrate
+# db생성할것이 있는지 확인
+python manage.py makemigrations
+
+
+[ 15. 관리자 계정 생성 ]
+python manage.py createsuperuser
+admin
+admin@naver.com
+1111
+
+[ 16. 관리자페이지 확인 ]
+http://127.0.0.1:8000/admin
+admin
+1111
+
+
+[ 17. models.py  - 아래내용 입력 ]
+from django.db import models
+
+class Stu(models.Model):
+    name = models.CharField(max_length=100)
+    major = models.CharField(max_length=100)
+    age = models.IntegerField(default=0)
+    grade = models.IntegerField(default=0)
+    gender = models.CharField(max_length=30)
+
+    def __str__(self):
+         return f'{self.name},{self.major},{self.age},{self.grade},{self.gender}'
+
+[ 18. admin.py 파일 - 아래 내용 복사 ]
+from django.contrib import admin
+from students.models import Stu
+
+admin.site.register(Stu)
+
+[ 19. class적용 ]
+# db생성할것이 있는지 확인
+python manage.py makemigrations
+ # db생성
+python manage.py migrate

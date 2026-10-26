@@ -1,0 +1,25 @@
+from django.shortcuts import render
+from member.models import Member
+
+def logout(request):
+    request.session.clear()    
+    context = {'temp':2}
+    return render(request, 'login.html',context)
+
+
+def login(request):
+    if request.method=="GET":
+        return render(request, 'login.html')
+    elif request.method=="POST":
+        id=request.POST.get('id')
+        pw=request.POST.get('pw')   
+        # qs = Member.objects.get(id=id,pw=pw).first() 
+        qs = Member.objects.get(id=id,pw=pw) 
+        if qs:
+            request.session['session_id']=id
+            request.session['session_nickname']=qs.nickname
+            context = {'temp':1}  
+        else:
+            context = {'temp':0}
+            print(f'데이터확인 : {id},{pw},{context},{qs}')
+        return render(request, 'login.html',context)

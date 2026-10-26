@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생정보리스트</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            color: #222;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #f2f4f7;
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .error {
+            color: #c62828;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>학생정보리스트</h1>
+    <!--
+        views.slist가 render()의 세 번째 인자로 전달한 context에서 error를 꺼냄.
+        {% if error %}는 error가 빈 문자열이 아닌 경우에만 안쪽 HTML을 남김.
+        엑셀 파일이 없을 때 views.py가 오류 문장을 넣고,
+        정상 처리 때는 error=''을 넣으므로 정상 화면에서는 이 문단이 사라짐.
+        {{ error }}는 변수 출력, {% %}는 조건·반복 같은 동작 지정에 사용.
+    -->
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+    <!--
+        headers는 views.py가 엑셀 첫 번째 행에서 만든 열 제목 목록.
+        목록에 값이 있을 때만 실제 표를 생성해 빈 엑셀에서 빈 표가 나타나지 않게 함.
+    -->
+    {% if headers %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <!--
+                            {% for header in headers %}는 headers를 처음부터 끝까지 반복.
+                            매 반복마다 현재 제목 하나가 header 변수에 담기고 <th> 하나 생성.
+                            |default_if_none:""은 Django 템플릿 필터.
+                            header가 Python의 None이면 화면에 None을 쓰지 않고 빈 글자로 출력.
+                        -->
+                        {% for header in headers %}
+                            <th>{{ header|default_if_none:"" }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <!--
+                        rows는 views.py에서 엑셀 두 번째 행부터 만든 목록.
+                        row 하나는 엑셀 한 행, 보통 학생 한 명의 여러 셀 값에 해당.
+                    -->
+                    {% for row in rows %}
+                        <tr>
+                            <!--
+                                안쪽 for는 현재 학생의 셀 값을 하나씩 꺼냄.
+                                value 하나마다 <td> 한 칸이 생성되므로,
+                                바깥 for 한 번이 끝날 때 학생 한 명의 표 한 줄 완성.
+                            -->
+                            {% for value in row %}
+                                <td>{{ value|default_if_none:"" }}</td>
+                            {% endfor %}
+                        </tr>
+
+                    {% empty %}
+                        <!--
+                            rows가 빈 목록일 때만 실행되는 for 전용 대체 영역.
+                            headers는 있지만 학생 데이터가 없을 때 안내 문장 표시.
+                            headers|length는 제목 개수 계산 필터이고,
+                            colspan은 그 개수만큼 열을 합쳐 문장을 표 전체에 표시.
+                        -->
+                        <tr>
+                            <td colspan="{{ headers|length }}">
+                                출력할 학생 데이터가 없음.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <p><a href="/">메인 페이지</a></p>
+</body>
+</html>

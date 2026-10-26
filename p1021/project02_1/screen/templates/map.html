@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5a1c9f1b7c58bc70dda07ca832006ae9"></script>
+<title>카카오맵</title>
+<link rel='stylesheet' href='/static/css/bview.css'>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=dcc9c2ff470111781f4ce0317ddd4efe"></script>
+
+</head>
+<body>
+<!-- HEADER -->
+<header>
+    <div class="top">
+    <div class="logo">
+                FOREST
+            </div>
+    <ul class="menu">
+    <li><a href="#">소개</a></li>
+    <li><a href="#">뉴스</a></li>
+    <li><a href="#">학생관리</a></li>
+    <li><a href="#">학과정보</a></li>
+    <li><a href="#">문의</a></li>
+    </ul>
+    </div>
+</header>
+<!-- VISUAL -->
+<section class="visual">
+    <div>
+        <h1>NEWS</h1>
+        <p>포레스트의 새로운 소식을 만나보세요.</p>
+    </div>
+</section>
+<main>
+    <div class="container">
+        <input type='text' name='search_word' id='search_word'>
+        <button type='button' onclick='searchBtn()'>검색</button>
+        <br>
+        <br>
+        <!--카카오맵지도표시 -->
+        <div id="map" style="width:100%;height:350px;"></div>
+    </div>
+</main>
+<script>
+
+<div id="map" style="width:100%;height:600px;"></div>
+<div id="result">자치구를 클릭하세요.</div>
+
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY"></script>
+
+<script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 25개 자치구 클릭 지도</title>
+
+    <style>
+        /* 페이지 기본 스타일 */
+        body {
+            margin: 20px;
+            font-family: Arial, "Malgun Gothic", sans-serif;
+        }
+
+        /* 카카오맵이 표시될 영역 */
+        #map {
+            width: 100%;
+            height: 600px;
+        }
+
+        /* 클릭한 자치구 이름을 표시할 영역 */
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>서울시 25개 자치구 클릭 지도</h2>
+
+    <!-- 카카오 지도가 표시될 영역 -->
+    <div id="map"></div>
+
+    <!-- 현재 선택된 자치구 이름 표시 -->
+    <div id="result">자치구를 클릭하세요.</div>
+
+    <!-- 카카오맵 JavaScript API 불러오기 -->
+    <!-- YOUR_KAKAO_JAVASCRIPT_KEY를 본인의 JavaScript 키로 변경 -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY"></script>
+
+    <script>
+        // -----------------------------------------
+        // 1. 카카오 지도 생성
+        // -----------------------------------------
+
+        // 지도 영역을 가져옵니다.
+        var mapContainer = document.getElementById('map');
+
+        // 지도의 중심 좌표와 확대 수준을 설정합니다.
+        // 위도: 37.5665, 경도: 126.9780 (서울 중심부)
+        var mapOption = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780),
+            level: 8
+        };
+
+        // 설정한 옵션으로 지도를 생성합니다.
+        var map = new kakao.maps.Map(mapContainer, mapOption);
+
+
+        // -----------------------------------------
+        // 2. 서울시 자치구 경계 데이터 설정
+        // -----------------------------------------
+
+        // 전국 시군구의 경계가 포함된 GeoJSON 파일 주소입니다.
+        // 아래 주소에서 데이터를 가져온 후 서울시 자치구만 추립니다.
+        var geoJsonUrl =
+            'https://raw.githubusercontent.com/KnellBalm/kr-admin-geojson/main/sig.geojson';
+
+        // 자치구별 다각형을 저장하는 객체입니다.
+        // 예: polygons['강남구']에는 강남구의 다각형들이 저장됩니다.
+        var polygons = {};
+
+        // 현재 선택된 자치구 이름입니다.
+        // 처음에는 아무 자치구도 선택되지 않았습니다.
+        var selectedDistrict = null;
+
+
+        // -----------------------------------------
+        // 3. 다각형의 기본 색상 설정
+        // -----------------------------------------
+
+        // 선택하지 않은 자치구에 적용할 색상입니다.
+        var normalOption = {
+            strokeWeight: 2,          // 경계선 두께
+            strokeColor: '#FFFFFF',   // 경계선 색상
+            strokeOpacity: 1,         // 경계선 불투명도
+            fillColor: '#A2FF99',     // 내부 채우기 색상
+            fillOpacity: 0.5          // 내부 채우기 투명도
+        };
+
+        // 마우스를 올렸을 때 적용할 색상입니다.
+        var mouseoverOption = {
+            fillColor: '#EFFFED',
+            fillOpacity: 0.8
+        };
+
+        // 클릭하여 선택한 자치구에 적용할 색상입니다.
+        var selectedOption = {
+            fillColor: '#FF7043',
+            fillOpacity: 0.8
+        };
+
+
+        // -----------------------------------------
+        // 4. 자치구 다각형을 만드는 함수
+        // -----------------------------------------
+
+        // districtName: 자치구 이름
+        // rings: GeoJSON에 들어 있는 경계 좌표 배열
+        function addPolygon(districtName, rings) {
+
+            // GeoJSON 좌표는 [경도, 위도] 순서입니다.
+            // 카카오맵 LatLng는 (위도, 경도) 순서이므로 바꿉니다.
+            // 바깥 경계와 내부 구멍이 있는 경우에도 처리하도록
+            // 각 경계선을 배열로 변환합니다.
+            var polygonPath = rings.map(function(ring) {
+                return ring.map(function(coord) {
+                    return new kakao.maps.LatLng(
+                        coord[1],  // 위도
+                        coord[0]   // 경도
+                    );
+                });
+            });
+
+            // 변환한 좌표를 이용해 카카오맵 다각형을 생성합니다.
+            // map: map을 지정하므로 생성과 동시에 지도에 표시됩니다.
+            var polygon = new kakao.maps.Polygon({
+                map: map,
+                path: polygonPath,
+                strokeWeight: normalOption.strokeWeight,
+                strokeColor: normalOption.strokeColor,
+                strokeOpacity: normalOption.strokeOpacity,
+                fillColor: normalOption.fillColor,
+                fillOpacity: normalOption.fillOpacity
+            });
+
+            // 해당 자치구를 저장할 배열이 없다면 새로 만듭니다.
+            if (!polygons[districtName]) {
+                polygons[districtName] = [];
+            }
+
+            // 같은 자치구에 속하는 다각형을 모두 저장합니다.
+            // 섬처럼 경계가 나뉜 구역도 함께 선택할 수 있습니다.
+            polygons[districtName].push(polygon);
+
+
+            // -------------------------------------
+            // 5. 마우스오버 이벤트
+            // -------------------------------------
+
+            // 다각형 위에 마우스를 올리면 색상을 바꿉니다.
+            kakao.maps.event.addListener(
+                polygon, 'mouseover', function() {
+
+                    // 이미 선택한 구라면 선택 색상을 유지합니다.
+                    if (selectedDistrict !== districtName) {
+                        polygon.setOptions(mouseoverOption);
+                    }
+                }
+            );
+
+
+            // -------------------------------------
+            // 6. 마우스아웃 이벤트
+            // -------------------------------------
+
+            // 마우스가 다각형 밖으로 나가면 색상을 되돌립니다.
+            kakao.maps.event.addListener(
+                polygon, 'mouseout', function() {
+
+                    // 선택된 구가 아니라면 기본 색상으로 복원합니다.
+                    if (selectedDistrict !== districtName) {
+                        polygon.setOptions(normalOption);
+                    } else {
+                        // 선택된 구라면 주황색을 유지합니다.
+                        polygon.setOptions(selectedOption);
+                    }
+                }
+            );
+
+
+            // -------------------------------------
+            // 7. 클릭 이벤트
+            // -------------------------------------
+
+            // 자치구를 클릭하면 선택 또는 선택 해제를 처리합니다.
+            kakao.maps.event.addListener(
+                polygon, 'click', function() {
+
+                    // 이미 선택된 구를 다시 클릭한 경우
+                    // 해당 구의 색상을 초기화하고 선택을 해제합니다.
+                    if (selectedDistrict === districtName) {
+
+                        polygons[districtName].forEach(function(p) {
+                            p.setOptions(normalOption);
+                        });
+
+                        selectedDistrict = null;
+
+                        // 선택 결과 문구를 초기화합니다.
+                        document.getElementById('result').innerHTML =
+                            '선택된 자치구가 없습니다.';
+
+                        return;
+                    }
+
+                    // 다른 구가 이미 선택되어 있다면
+                    // 기존 구에 속한 다각형의 색상을 모두 초기화합니다.
+                    if (selectedDistrict !== null) {
+
+                        polygons[selectedDistrict].forEach(function(p) {
+                            p.setOptions(normalOption);
+                        });
+                    }
+
+                    // 클릭한 자치구를 새로 선택합니다.
+                    selectedDistrict = districtName;
+
+                    // 해당 구에 속한 모든 다각형을 주황색으로 변경합니다.
+                    polygons[districtName].forEach(function(p) {
+                        p.setOptions(selectedOption);
+                    });
+
+                    // 화면 아래에 선택한 자치구 이름을 표시합니다.
+                    document.getElementById('result').innerHTML =
+                        '선택한 자치구: ' + districtName;
+                }
+            );
+        }
+
+
+        // -----------------------------------------
+        // 8. GeoJSON 데이터 불러오기
+        // -----------------------------------------
+
+        // 외부 주소에서 실제 행정구역 경계 데이터를 가져옵니다.
+        fetch(geoJsonUrl)
+
+            // 서버 응답을 확인하고 JSON 데이터로 변환합니다.
+            .then(function(response) {
+
+                // 다운로드에 실패한 경우 오류를 발생시킵니다.
+                if (!response.ok) {
+                    throw new Error(
+                        '경계 데이터 다운로드 실패: ' + response.status
+                    );
+                }
+
+                // 응답 본문을 JSON 객체로 변환합니다.
+                return response.json();
+            })
+
+            // 변환된 GeoJSON 데이터로 다각형을 만듭니다.
+            .then(function(geojson) {
+
+                // 전국 행정구역 데이터에서 각 구역을 하나씩 확인합니다.
+                geojson.features.forEach(function(feature) {
+
+                    // 행정구역의 전체 이름을 가져옵니다.
+                    // 예: '서울특별시 강남구'
+                    var fullName = feature.properties.FULL_NM;
+
+                    // 서울특별시에 속한 구역만 처리합니다.
+                    if (
+                        !fullName ||
+                        !fullName.startsWith('서울특별시 ')
+                    ) {
+                        return;
+                    }
+
+                    // 전체 이름에서 '서울특별시 '를 제거합니다.
+                    // 예: '서울특별시 강남구' → '강남구'
+                    var districtName =
+                        fullName.replace('서울특별시 ', '');
+
+                    // 해당 구역의 경계 좌표 정보를 가져옵니다.
+                    var geometry = feature.geometry;
+
+                    // Polygon은 하나의 외곽 경계로 구성됩니다.
+                    if (geometry.type === 'Polygon') {
+                        addPolygon(
+                            districtName,
+                            geometry.coordinates
+                        );
+                    }
+
+                    // MultiPolygon은 분리된 여러 영역으로 구성됩니다.
+                    // 각 영역을 같은 자치구 이름으로 저장합니다.
+                    if (geometry.type === 'MultiPolygon') {
+                        geometry.coordinates.forEach(function(rings) {
+                            addPolygon(districtName, rings);
+                        });
+                    }
+                });
+
+                // 경계 데이터 로드 완료 메시지를 표시합니다.
+                document.getElementById('result').innerHTML =
+                    '서울시 자치구 경계 로드 완료. 구를 클릭하세요.';
+            })
+
+            // 데이터 다운로드나 처리 중 오류가 발생하면 실행됩니다.
+            .catch(function(error) {
+                console.error(error);
+
+                // 사용자에게 오류 메시지를 표시합니다.
+                document.getElementById('result').innerHTML =
+                    '경계 데이터 로드 실패: 인터넷 연결과 데이터 주소를 확인하세요.';
+            });
+
+    </script>
+
+</body>
+</html>
