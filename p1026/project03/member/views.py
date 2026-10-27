@@ -18,9 +18,11 @@ def login(request):
 def ekey(request):
     # 인증키가져오기
     email_key = request.POST.get('email_key','')
-    session_e_key = request.session['session_e_key']
+    # session_e_key = request.session['session_e_key']
+    session_e_key = request.session.get('session_e_key', '')
     print(f"데이터 확인 : {email_key},{session_e_key}")
-    if email_key == session_e_key:
+    # if email_key == session_e_key:
+    if session_e_key and email_key == session_e_key:
         context = {'temp':1}
     else:
         context = {'temp':0}
@@ -71,25 +73,42 @@ def emailsend(request):
 
     # 6. 그룹핑 정보전송
     s = smtplib.SMTP("smtp.naver.com",587) #SMTP 서버
-    s.starttls() # 메일서버접근
+    s.starttls() # 메일서버접근     
     s.login(sendEmail,naver_key) # 메일서버로그인
-    s.sendmail(sendEmail,email,msg.as_string()) # 메일발송
+    s.sendmail(sendEmail, email, msg.as_string()) # 메일발송
     s.close() # 메일닫기
 
     request.session['session_e_key'] = e_key
+    
     context = {'e_key':e_key}
     return JsonResponse(context)
 
 # 회원가입1
 def step01(request):
-    # 디렉토리 위치
+    # # 디렉토리 위치
+    # BASE_DIR = Path(__file__).resolve().parent.parent
+    # ENV_FILE = BASE_DIR / ".env"
+    # # load_dotenv(ENV_FILE)
+    # load_dotenv(ENV_FILE, override=True)
+    # # ENV_FILE에 지정된 .env 파일을 읽고, 그 안의 환경변수 값을 Python 프로그램에 적용하라는 뜻
+    # naver_key = os.getenv('naver_key')
+    # print('네이버인증키 : ',naver_key)
+    # return render(request, 'step01.html')
+
     BASE_DIR = Path(__file__).resolve().parent.parent
     ENV_FILE = BASE_DIR / ".env"
-    load_dotenv(ENV_FILE)
+
+    load_dotenv(ENV_FILE, override=True)
     naver_key = os.getenv('naver_key')
-    # print('네이버인증키 : ',naver_key)
+
+    print('ENV 파일 위치 :', ENV_FILE)
+    print('ENV 파일 존재 :', ENV_FILE.exists())
+    print('naver_key 존재 :', bool(naver_key))
+    print('naver_key 길이 :', len(naver_key) if naver_key else 0)
     return render(request, 'step01.html')
 
 def step02(request):
     return render(request, 'step02.html')
+
+
 
