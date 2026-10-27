@@ -284,16 +284,17 @@ $(document).ready(function() {
 								type:'post',                             // 전송방식
 								headers:{'X-CSRFToken':'{{csrf_token}}'},// csrf_token
 								data:{'email_key':email_key},                     // html에서 django보내는 데이터
-								dataType:'json',                         // 받는데이터 타입 : json,xml,text
+								dataType:'json',                         // 받는데이터 타입 : json,xml,text	
 								success:function(data){ 
 									alert('성공');
 									console.log(data);
+									location.href="/member/step02/";
 								},
 								error:function(){
 									alert('실패')
 								}
 							});//ajax		
-						}//ekeyBtn
+						}//ekeyBtn 
 
 						function emailBtn(){
 							alert('이메일로 인증키를 전송합니다.');

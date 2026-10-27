@@ -30,54 +30,119 @@ def ekey(request):
 
 # 이메일전송
 def emailsend(request):
-    # 1.email주소
-    email = request.POST.get('email','')
-    print('이메일주소확인 : ',email)
+    # 1. 사용자가 입력한 이메일 주소 가져오기
+    email = request.POST.get('email', '')
+    print('이메일주소확인 :', email)
 
-    # 2. 네이버 비밀번호 가져오기 (.env)
+    # 2. .env 파일 위치 확인
     BASE_DIR = Path(__file__).resolve().parent.parent
     ENV_FILE = BASE_DIR / ".env"
+    print('ENV 파일 존재 여부 :', ENV_FILE.exists())
+
+    # 3. .env 파일에서 네이버 인증 비밀번호 가져오기
     load_dotenv(ENV_FILE)
     naver_key = os.getenv('naver_key')
-    print('네이버인증키 : ',naver_key)
+    print('비밀번호 로딩 여부 :', bool(naver_key))
+
+    # 4. 이메일 인증번호 생성
+    chars = string.digits + string.ascii_lowercase
+    e_key = ''.join(random.choices(chars, k=10))
+    print('생성된 이메일 인증번호 :', e_key)
+
+    # 5. 발신 이메일과 이메일 내용 설정
+    sendEmail = 'tracey212@naver.com'
+    content = f'이메일확인 인증키 : {e_key}'
+
+    msg = MIMEText(content)
+    msg['From'] = sendEmail
+    msg['To'] = email
+    msg['Subject'] = '이메일 TEST2'
+
+    # 6. 네이버 SMTP 서버 연결
+    try:
+        s = smtplib.SMTP("smtp.naver.com", 587)
+        print('SMTP 서버 연결 성공')
+
+        # 7. TLS 암호화 연결
+        s.starttls()
+        print('TLS 연결 성공')
+
+        # 8. 네이버 SMTP 로그인
+        print('SMTP 로그인 시도')
+        s.login(sendEmail, naver_key)
+        print('SMTP 로그인 성공')
+
+        # 9. 이메일 발송
+        s.sendmail(sendEmail, email, msg.as_string())
+        print('이메일 발송 성공')
+
+        s.close()
+
+    except smtplib.SMTPAuthenticationError as e:
+        print('SMTP 로그인 실패')
+        print('오류번호 :', e.smtp_code)
+        print('오류내용 :', e.smtp_error)
+        return JsonResponse({'temp': 0, 'error': 'SMTP 로그인 실패'}, status=500)
+
+    # 10. 이메일 발송 성공 후 인증번호를 세션에 저장
+    request.session['session_e_key'] = e_key
+
+    # 11. AJAX에 결과 반환
+    context = {'e_key': e_key}
+    return JsonResponse(context)
+
+# def emailsend(request):
+#     # 1.email주소
+#     email = request.POST.get('email','')
+#     print('이메일주소확인 : ',email)
+
+    # 2. 네이버 비밀번호 가져오기 (.env)
+    # BASE_DIR = Path(__file__).resolve().parent.parent
+    # ENV_FILE = BASE_DIR / ".env"
+    # load_dotenv(ENV_FILE)
+    # naver_key = os.getenv('naver_key')
+    # print('네이버인증키 : ',naver_key)
+    # print('ENV 파일 위치 :', ENV_FILE)
+    # print('ENV 파일 존재 여부 :', ENV_FILE.exists())
+    # print('비밀번호 로딩 여부 :', bool(naver_key)) 
 
     # 3. 인증키난수생성
     # chars = ['0','1','2','3','4','5','6','7','8','9','a','z']
     #       0-9문자열 + a-z까지 문자열 
-    chars = string.digits + string.ascii_lowercase
+    # chars = string.digits + string.ascii_lowercase
     # 중복가능:choices, 중복불가:sample / 리스트 -> 문자열
-    e_key = ''.join(random.choices(chars,k=10)) 
-    print(e_key)
+    # e_key = ''.join(random.choices(chars,k=10)) 
+    # print(e_key)
 
-    # 4. 이메일내용 - 글자로 이메일발송
-    sendEmail = 'onulee@naver.com'
-    content = f'이메일확인 인증키 : {e_key}'
-    text = f'''
-        <html>
-            <body>
-                <h2>[ 이메일확인 인증키 ]</h2>
-                <p>{e_key}</p>
-            </body>
-        </html>
-    '''
+    # # 4. 이메일내용 - 글자로 이메일발송
+    # sendEmail = 'onulee@naver.com'
+    # content = f'이메일확인 인증키 : {e_key}'
+    # text = f'''
+    #     <html>
+    #         <body>
+    #             <h2>[ 이메일확인 인증키 ]</h2>
+    #             <p>{e_key}</p>
+    #         </body>
+    #     </html>
+    # '''
 
-    # 5. 정보그룹핑
+    # # 5. 정보그룹핑
     # msg = MIMEText(content)
-    msg = MIMEText(text,'html')
-    msg['From'] = sendEmail # 보내는사람
-    msg['To'] = email                # 받는사람
-    msg['Subject'] = '이메일 TEST2'    # 제목
+    # msg = MIMEText(text,'html')
+    # msg['From'] = sendEmail # 보내는사람
+    # msg['To'] = email                # 받는사람
+    # msg['Subject'] = '이메일 TEST2'    # 제목
 
-    # 6. 그룹핑 정보전송
-    s = smtplib.SMTP("smtp.naver.com",587) #SMTP 서버
-    s.starttls() # 메일서버접근
-    s.login(sendEmail,naver_key) # 메일서버로그인
-    s.sendmail(sendEmail,email,msg.as_string()) # 메일발송
-    s.close() # 메일닫기
+    # # 6. 그룹핑 정보전송
+    # s = smtplib.SMTP("smtp.naver.com",587) #SMTP 서버
+    # s.starttls() # 메일서버접근
+    # s.login(sendEmail,naver_key) # 메일서버로그인
+    # s.sendmail(sendEmail,email,msg.as_string()) # 메일발송
+    # s.close() # 메일닫기
 
-    request.session['session_e_key'] = e_key
-    context = {'e_key':e_key}
-    return JsonResponse(context)
+    # request.session['session_e_key'] = e_key
+    # context = {'e_key':e_key}
+    # return JsonResponse(context)
 
 # 회원가입1
 def step01(request):
@@ -88,3 +153,7 @@ def step01(request):
     naver_key = os.getenv('naver_key')
     print('네이버인증키 : ',naver_key)
     return render(request, 'step01.html')
+
+
+def step02(request):
+    return render(request,'step02.html')
