@@ -3,6 +3,7 @@ from . import views
 
 app_name='member'
 urlpatterns = [
+    path('login/', views.login, name='login'),
     path('step01/', views.step01, name='step01'),
     # 이메일전송
     path('emailsend/', views.emailsend, name='emailsend'),

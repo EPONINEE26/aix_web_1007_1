@@ -18,4 +18,11 @@ class Board(models.Model):
     def __str__(self):
         return f'{self.bno},{self.btitle},{self.bdate}'
 
-    
+    # bno,id,btitle,bcontent,bgroup,bstep,bindent,bhit,bdate,bfile
+    # bno : 게시판번호
+    # id : 회원아이디
+    # btitle:제목, bcontent:내용
+    # bgroup-답변달기그룹핑,bstep-그룹핑순서,bindent-들여쓰기 : 답변달기
+    # bhit : 조회수
+    # bdate : 등록일
+    # bfile : 파일첨부

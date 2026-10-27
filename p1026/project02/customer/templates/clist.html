@@ -226,20 +226,29 @@ $(document).ready(function() {
 								<th scope="col" class="tnone">조회수</th>
 							</thead>
 							<tbody>
-								{% for board in list %}
+								{% for board in list  %}
 								<tr>
 									<td class="tnone">{{board.bno}}</td>
 									<td class="left">
 										<a href="/customer/cview/{{board.bno}}/">{{board.btitle}}</a>
 										<img src="/static/images/ico/ico_new.gif" alt="NEW" />
 									</td>
-									<td>{{board.bdate | date:"Y-m-d"}}</td>
+									<td>{{board.bdate | date:'Y-m-d'}}</td>
 									<td class="tnone right">{{board.bhit}}</td>
 								</tr>
 								{% endfor %}
+								
+
+								
+
+								
+
 							</tbody>
 						</table>
-					</div>	
+					</div>
+						
+
+
 					<div class="btnAreaList">
 						<!-- 페이징이동1 -->
 						<div class="allPageMoving1">
