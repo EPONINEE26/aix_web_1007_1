@@ -74,18 +74,6 @@ import string
 #     return JsonResponse(context)
 
 
-from django.shortcuts import render
-import os
-from pathlib import Path
-from dotenv import load_dotenv
-from django.db.models import F,Q
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import smtplib
-from email.mime.text import MIMEText
-import random
-import string
-
 
 def login(request):
     return render(request, 'login.html')
@@ -138,7 +126,7 @@ def emailsend(request):
     print('생성된 이메일 인증번호 :', e_key)
 
     # 기존에 실제 사용하던 네이버 발신 이메일 주소를 입력해야 함
-    sendEmail = '본인이메일'
+    sendEmail = 'tracey212@naver.com'
 
     content = f'이메일확인 인증키 : {e_key}'
 
