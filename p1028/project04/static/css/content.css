@@ -7,7 +7,7 @@
 #location{position:absolute; right:0; top:11px; overflow:hidden;}
 #location ol{float:right; padding:0 0 0 7px;}
 #location ol li{float:left; padding:12px 14px 12px 7px; line-height:1; font-size:11px; color:#888; background:url('../images/bg/bg_location.gif') right 12px no-repeat;}
-#location ol li.last{background:url(none); padding:12px 0 12px 7px; color:#333; font-weight:600;}
+#location ol li.last{background:none; padding:12px 0 12px 7px; color:#333; font-weight:600;}
 #location ol li a{text-decoration:none; color:#888;}
 #location ol li a:hover{text-decoration:none; color:#888;}
 
@@ -58,7 +58,7 @@
 .tabCategory .cateLeft{float:left; font-size:16px; font-weight:600; color:#444; padding:0 0 15px 0;}
 .tabCategory .cateRight{float:right;}
 .tabCategory .cateRight ul li{float:left; padding:4px 10px 0; background:url('../images/bg/bg_cateright_line.gif') right 6px no-repeat; }
-.tabCategory .cateRight ul li.last{background:url(none); padding:4px 0 0 10px;}
+.tabCategory .cateRight ul li.last{background:none; padding:4px 0 0 10px;}
 .tabCategory .cateRight ul li a{font-size:13px; font-weight:600; color:#888;}
 .tabCategory .cateRight ul li a.on{color:#444; background:url('../images/bg/bg_cateright_on.gif') right 6px no-repeat; padding:0 20px 0 0;}
 

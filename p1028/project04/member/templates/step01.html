@@ -286,7 +286,10 @@ $(document).ready(function() {
 								data:{'email_key':email_key},                     
 								dataType:'json',                         
 								success:function(data){ 
-									alert('성공');
+									alert(data.message || (data.temp === 1 ? '인증 성공' : '인증 실패'));
+									if (data.temp === 1) {
+										location.href = "{% url 'member:step02' %}";
+									}
 									console.log(data);
 								},
 								error:function(){
@@ -305,7 +308,7 @@ $(document).ready(function() {
 								data:{'email':email},                     
 								dataType:'json',                         
 								success:function(data){ 
-									alert('성공');
+									alert(data.message || '인증키를 이메일로 전송했습니다.');
 									console.log(data);
 								},
 								error:function(xhr){
