@@ -119,7 +119,7 @@ def step02(request):
     return render(request, 'step02.html')
 
 def step03(request):
-    return render(request, 'step03.html')   # [수정] 오타 tep03.html -> step03.html
+    return render(request, 'step03.html')   
 
 def step04(request):
     return render(request, 'step04.html')
