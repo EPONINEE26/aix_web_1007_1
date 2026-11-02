@@ -1,0 +1,10 @@
+from django.urls import path,include
+from . import views
+
+app_name='comment'
+urlpatterns = [
+    path('commlist/', views.commlist, name='commlist'),    
+    path('commWrite/', views.commWrite, name='commWrite'),    
+    path('commDelete/', views.commDelete, name='commDelete'),    
+    path('commUpdate/', views.commUpdate, name='commUpdate'),
+]

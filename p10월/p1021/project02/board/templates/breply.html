@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='/static/css/bwrite.css'>
+    <title>뉴스 상세보기</title>
+    <style>
+        .view-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+        .view-table th,.view-table td{border-bottom:1px solid #e5e5e5;padding:14px 10px;vertical-align:top;text-align:left;}
+        .view-table th{width:120px;background:#f7f7f7;}
+
+        /* 수정부분: 하단 옵션 4개를 한 줄로 배치 */
+        .reply-bottom-area{
+            display:grid;
+            grid-template-columns:repeat(4, 1fr);
+            gap:5px;
+            width:100%;
+            margin-top:30px;
+        }
+
+        /* 수정부분: 하단 옵션 버튼 줄바꿈 방지 */
+        .reply-bottom-area .btn{
+            width:100%;
+            min-width:0;
+            padding:0 4px;
+            white-space:nowrap;
+        }
+    </style>
+
+    <script>
+        // 수정부분: 답변 등록 전 로그인 여부 확인
+        function replyBtn(){
+            if ('{{request.session.session_id}}' == ''){
+                // 수정부분: 비로그인 사용자에게 로그인 안내 메시지 표시
+                alert('로그인을 해야만 답변을 달 수 있습니다.');
+                return false;
+            }
+
+            // 수정부분: 로그인한 경우 답변 등록 진행
+            return true;
+        }
+    </script>
+</head>
+
+<body>
+<header>
+<div class="top">
+<div class="logo">FOREST</div>
+<ul class="menu">
+<li><a href="#">소개</a></li>
+<li><a href="#">뉴스</a></li>
+<li><a href="#">학생관리</a></li>
+<li><a href="#">학과정보</a></li>
+<li><a href="#">문의</a></li>
+</ul>
+</div>
+</header>
+
+<section class="visual">
+<div>
+<h1>NEWS</h1>
+<p>포레스트의 새로운 소식을 만나보세요.</p>
+</div>
+</section>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">
+            HOME <span>></span> FOREST <span>></span> NEWS <span>></span> VIEW
+        </div>
+
+        <div class="page-title">
+            <h2>뉴스 상세보기</h2>
+        </div>
+
+        <table class="view-table">
+            <tr>
+                <th>제목</th>
+                <td>{{board.btitle}}</td>
+            </tr>
+
+            <tr>
+                <th>작성자</th>
+                <td>{{board.id}}</td>
+            </tr>
+
+            <tr>
+                <th>조회수</th>
+                <td>{{board.bhit}}</td>
+            </tr>
+
+            <tr>
+                <th>내용</th>
+                <td>{{board.bcontent|linebreaks}}</td>
+            </tr>
+
+            <tr>
+                <th>첨부파일</th>
+                <td>
+                    {% if board.bfile %}
+                        <a href="/media/{{board.bfile}}">
+                            {{board.bfile}}
+                        </a>
+                    {% else %}
+                        첨부파일 없음
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <!-- 수정부분: 답변 등록 form 추가 -->
+        <form
+            class="write-form"
+            action="/board/breply/{{board.bno}}/"
+            method="post"
+            enctype="multipart/form-data"
+            onsubmit="return replyBtn();"
+        >
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="bgroup"
+                value="{{board.bgroup}}"
+            >
+
+            <input
+                type="hidden"
+                name="bstep"
+                value="{{board.bstep}}"
+            >
+
+            <input
+                type="hidden"
+                name="bindent"
+                value="{{board.bindent}}"
+            >
+
+            <div class="form-row">
+                <div class="form-label">
+                    제목
+                </div>
+
+                <div class="form-input">
+                    <input
+                        type="text"
+                        name="btitle"
+                        value="답변: {{board.btitle}}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">
+                    작성자
+                </div>
+
+                <div class="form-input">
+                    <input
+                        type="text"
+                        name="id"
+                        value="{{request.session.session_id}}"
+                        readonly
+                    >
+                </div>
+            </div>
+
+            <div class="form-row content-row">
+                <div class="form-label">
+                    내용
+                </div>
+
+                <div class="form-input content-input">
+                    <textarea
+                        name="bcontent"
+                        placeholder="답변 내용을 입력하세요."
+                        required
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">
+                    첨부파일
+                </div>
+
+                <div class="form-input file-input">
+                    <input
+                        type="file"
+                        name="bfile"
+                    >
+                </div>
+            </div>
+
+            <!-- 수정부분: 하단 옵션 4개를 한 줄로 표시 -->
+            <div class="reply-bottom-area">
+                <a
+                    href="/"
+                    class="btn btn-cancel"
+                >
+                    홈으로
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-dark"
+                >
+                    답변 등록
+                </button>
+
+                <a
+                    href="/board/bupdate/{{board.bno}}/"
+                    class="btn"
+                >
+                    수정
+                </a>
+
+                <a
+                    href="/board/bdelete/{{board.bno}}/"
+                    class="btn btn-cancel"
+                    onclick="return confirm('정말 삭제하시겠습니까?');"
+                >
+                    삭제
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-info">
+            포레스트 리조트  
+
+            충청북도 제천시 백운면 금봉로 365  
+
+            대표번호 : 043-649-6000
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

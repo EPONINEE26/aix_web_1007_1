@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생정보리스트</title>
+
+    <style>
+        /* 전체 화면 기본 설정 */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            color: #222;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        /* 엑셀 데이터 표 설정 */
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #f2f4f7;
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .error {
+            color: #c62828;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>>
+    <h1>학생정보리스트</h1>
+
+    <!-- 엑셀 파일이 없을 때 오류 표시 -->
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <!-- 엑셀의 열 제목과 학생 데이터를 표로 출력 -->
+    {% if headers %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        {% for header in headers %}
+                            <th>{{ header|default_if_none:"" }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            {% for value in row %}
+                                <td>{{ value|default_if_none:"" }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{{ headers|length }}">
+                                출력할 학생 데이터가 없음.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <!-- 기존 메인 페이지로 돌아가는 링크 -->
+    <p><a href="/">메인 페이지</a></p>
+</body>
+</html>

@@ -1,0 +1,258 @@
+# 네트워크 : djanggo (완전한 웹 프레임워크), Flask (마이크로 웹 프레임워크)
+# http : 한번의 요청 건을 처리한 다음 접속이 끊는다. 여러 사람이 정보를 받을 수 있지만, 정보 유지가 힘듬. 페이지가 음직일 때마다 로그인이 필요한 경우가 다반수
+# 데이터분석 : s-qule(SQLD 또는 SQLP) 자격증이 있으면 도움이 되지만, 요즘은 ORM (object-Relational Mapping)로 SQUL 퀴리 대신 파이썬 코드를 사용하여 데이터베이스 조작을 수행하는 쪽으로 넘어가고 있음
+# 머신러닝, 딥러닝, 파이썬을 사용하기에 최근에는 디장고로의 형태를 사용하는 추세임 
+# 쿠키 : 고객에게 저장시키는 것, 세션 : DB에 저장시키는 것
+# url 에서 요청하는 것을 request, 처리하는 것을 response 
+
+
+# 웹서버 : 하드웨어 서버 및 OS 서버
+# 애플리케이션서버 : 프로그래밍 서버 (소프트웨어 서버), 아파치서버 
+
+# cd : change directory 
+
+[ 프로젝트 생성 ] 
+django-admin startproject spjt01 
+django-admin startproject spjt02
+django-admin startproject spjt03 
+django-admin startproject spjt04
+
+['디렉토리 이동]
+cd spjt01
+cd spjt02
+cd spjt03
+cd spjt04
+
+[ cmd 창 생성 ]
+win+r > cmd 엔터 
+cd C:\Users\mbc>cd C:\workspace\web\aix_web_1007\p1007\spjt01
+cd C:\Users\mbc>cd C:\workspace\web\aix_web_1007\p1007\spjt02
+cd C:\Users\mbc>cd C:\workspace\web\aix_web_1007\p1007\spjt03
+cd C:\Users\mbc>cd C:\workspace\web\aix_web_1007\p1007\spjt04
+
+[ 서버구동 ]
+python manage.py runserver
+
+[ app 생성 ] 
+python manage.py startapp students
+
+[ 서버연결 ] 
+http://127.0.0.1:8000/
+
+[ 서버종료 ]
+ctrl +c 
+
+MVC 패턴 : control 를 통해 이동함 (관리 유지 보수 편함) 
+MVT 패턴 : view 를 통해 이동함 
+
+명령어 vscode 
+dir 
+clear 
+(clear 후 cd spjt01 로 변경해야함)
+cmd 창에는 python manage.py runserver만 입력하고 나머지는 terminal 에서 입력
+밖으로 빠지는 건 cd.. 
+
+
+PS C:\workspace\web\aix_web_1007> cd p1007
+PS C:\workspace\web\aix_web_1007\p1007> cd\
+PS C:\> cd workspace
+PS C:\workspace> cd web
+PS C:\workspace\web> cd aix_web_1007
+PS C:\workspace\web\aix_web_1007> cd p1007
+PS C:\workspace\web\aix_web_1007\p1007> 
+
+html 폴더나 파일을 열 때 자동생성이 안 될 경우 하단 오른쪽에서 html로 변경하면 됨 
+
+
+
+
+
+
+
+
+
+AI_X융복합인재양성과정1 검색
+
+
+
+A
+
+AI_X융복합인재양성과정1
+
+
+대화 찾기…
+
+
+
+
+
+
+17
+
+
+
+
+
+메시지
+
+캔버스리스트폴더
+내역 로드 중...
+이병호
+  오후 2:22
+[ 1. 디렉토리 이동 ]
+cd p1007 폴더이동
+
+[ 2. 프로젝트 생성 ]
+django-admin startproject spjt04
+
+[ 3. 디렉토리 이동 ]
+cd spjt04
+
+[ 4. app생성 ]
+python manage.py startapp students
+
+[ 5. cmd창 생성 ]
+win+r > cmd 입력후 엔터키
+
+[ 6. cmd창에서 디렉토리 위치 이동 ]
+cd C:\workspace\web\aix_web_1007\p1007\spjt04
+
+[ 7. 서버구동 ]
+python manage.py runserver
+
+[ 8. 서버접속 ]
+http://127.0.0.1:8000/
+
+[ 9. sjpt04> setting.py ]
+INSTALLED_APPS = [
+'students',
+]
+
+[ 10. sjpt04> urls.py ]
+from django.urls import path,include
+urlpatterns = [
+path('admin/', admin.site.urls),
+path('students/', include('students.urls')),
+]
+
+[ 11. students > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name='students'
+urlpatterns = [
+    path('swrite/', views.swrite, name='swrite'),
+]
+
+[ 12. students > views.py ]
+def swrite(request):
+    return render(request,'swrite.html')
+
+[ 13. students > templates 폴더생성 ]
+swrite.html 파일 생성
+
+
+[ 서버종료 ]
+ctrl + c : 종료됨
+이병호
+  오후 3:14
+Zip
+ 
+
+shop3.zip
+Zip
+
+
+
+이병호
+  오후 3:30
+Zip
+ 
+
+shop_stu.zip
+Zip
+
+
+
+path('', include('home.urls')),이병호  [오후 5:39]
+[ 1. 디렉토리 이동 ]
+cd p1007 폴더이동
+
+[ 2. 프로젝트 생성 ]
+django-admin startproject spjt04
+
+[ 3. 디렉토리 이동 ]
+cd spjt04
+
+[ 4. app생성 ]
+python manage.py startapp students
+python manage.py startapp home
+
+[ 5. cmd창 생성 ]
+win+r > cmd 입력후 엔터키
+
+[ 6. cmd창에서 디렉토리 위치 이동 ]
+cd C:\workspace\web\aix_web_1007\p1007\spjt04
+
+[ 7. 서버구동 ]
+python manage.py runserver
+
+[ 8. 서버접속 ]
+http://127.0.0.1:8000/
+
+[ 9. sjpt04> setting.py ]
+INSTALLED_APPS = [
+'students',
+]
+LANGUAGE_CODE = 'ko-kr'
+TIME_ZONE = 'Asia/Seoul'
+
+
+[ 10. sjpt04> urls.py ]
+from django.urls import path,include
+urlpatterns = [
+path('admin/', admin.site.urls),
+path('students/', include('students.urls')),
+path('', include('home.urls')),
+]
+
+[ 11. students > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name='students'
+urlpatterns = [
+    path('swrite/', views.swrite, name='swrite'),
+]
+
+[ 11-2. home > urls.py 생성 ]
+from django.urls import path,include
+from . import views
+
+app_name=''
+urlpatterns = [
+    path('', views.index,name='index'),
+]
+
+
+[ 12. students > views.py ]
+def swrite(request):
+    return render(request,'swrite.html')
+
+[ 12-2. home > views.py ]
+from django.shortcuts import render
+
+# 메인페이지
+def index(request):
+    return render(request,'index.html')
+
+
+[ 13. students > templates 폴더생성 ]
+swrite.html 파일 생성
+
+[ 13-2. home> templates 폴더생성 ]
+index.html 파일 생성
+
+
+[ 서버종료 ]
+ctrl + c : 종료됨

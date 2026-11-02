@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- 모바일과 PC에서 화면 너비를 맞춤 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>학생 정보 목록</title>
+
+    <style>
+        /* 전체 페이지의 기본 글꼴과 여백 */
+        body {
+            font-family: Arial, "Malgun Gothic", sans-serif;
+            margin: 30px;
+            color: #222;
+            background: #f7f8fa;
+        }
+
+        /* 제목 영역 */
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        /* 학생 수 안내 문구 */
+        .total-count {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        /* 표가 화면보다 넓을 경우 가로로 스크롤 */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 학생 목록 표 */
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        /* 표 제목과 데이터 셀의 공통 설정 */
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* 열 제목 */
+        th {
+            background: #eaf0f8;
+            font-weight: bold;
+        }
+
+        /* 마우스를 행 위에 올리면 해당 행을 구분 */
+        tbody tr:hover {
+            background: #f0f6ff;
+        }
+
+        /* 마지막 행의 아래쪽 테두리를 제거 */
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 조회 결과가 없을 때 안내 문구 */
+        .empty-message {
+            padding: 25px;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>학생 정보 목록</h1>
+
+    <!-- views.py에서 전달받은 학생 수 -->
+    <p class="total-count">
+        전체 학생 수:
+        <strong>{{ total_count }}</strong>명
+    </p>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>이름</th>
+                    <th>학교</th>
+                    <th>학년</th>
+                    <th>키</th>
+                    <th>국어</th>
+                    <th>영어</th>
+                    <th>수학</th>
+                    <th>SW특기</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- 학생이 한 명씩 들어올 때마다 표의 행을 생성 -->
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.number }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.school }}</td>
+                    <td>{{ student.grade }}</td>
+                    <td>{{ student.height }}</td>
+                    <td>{{ student.korean }}</td>
+                    <td>{{ student.english }}</td>
+                    <td>{{ student.math }}</td>
+                    <td>{{ student.sw_skill|default:"-" }}</td>
+                </tr>
+
+                <!-- for 반복문이 끝나면 다음 학생이 없을 때를 확인 -->
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="empty-message">
+                        등록된 학생 정보가 없습니다.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+cd C:\workspace\web\aix_web_1007\p1012\project02
+
+cd C:\workspace\web\aix_web_1007\p1008\spro01
+
+python -m django startproject project01
+
+python manage.py runserver
+
+
+[ html에서 파이썬 데이터전달방법 ]
+1. form
+2. 파라미터 
+3. 자바스크립트
+4. url 패스 -
+
+{# 명령어 : {% for if %}   #}
+
+{# 디장고 주석 : {% for,if %}   {{name}} #}
+
+[14. db계정 생성 ]
+# db생성
+python manage.py migrate
+# db생성할것이 있는지 확인
+python manage.py makemigrations
+
+
+[ 15. 관리자 계정 생성 ]
+python manage.py createsuperuser
+admin
+admin@naver.com
+1111
