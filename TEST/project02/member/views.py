@@ -18,7 +18,7 @@ def login(request):
             context = {'temp' : 0}    
             
         print(f'데이터 확인 : {id},{pw},{context},{qs}')   
-        return render(request, 'login.html' context)
+        return render(request, 'login.html', context)
 
 
 def logout(request):
