@@ -3,11 +3,10 @@ from member.models import Member
 
 class Board(models.Model):
     bno = models.AutoField(primary_key=True)
-    # member = models.ForeignKey(Member,on_delete=models.DO_NOTHING,blank=True)
     id = models.CharField(max_length=30)  
     btitle = models.CharField(max_length=1000)
-    bcontent = models.TextField()    
-
+    bcontent = models.TextField()    # 대용량Text
+  
     bgroup = models.IntegerField(default=0)
     bstep = models.IntegerField(default=0)
     bindent = models.IntegerField(default=0)
@@ -17,4 +16,4 @@ class Board(models.Model):
 
     def __str__(self):
         return f'{self.bno},{self.btitle},{self.bdate}'
-
+    

@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel = 'stylesheet', href="/static/css/index.css">
+    <link rel='stylesheet' href='/static/css/index.css'>
     <title>FOREST RESOM</title>
 
 
-
-
 </head>
-
-
 <body>
 
 
@@ -20,62 +17,45 @@
 ================================================== -->
 
 <header>
-
     <div class="header-inner">
-
-
         <div class="logo">
             FOREST RESOM
         </div>
-
-
         <ul class="main-menu">
-
             <li>
                 <a href="/board/blist/">게시판</a>
             </li>
-
             <li>
                 <a href="/board/chart/">차트그래프</a>
             </li>
-
             <li>
-                <a href="/screen/chart/">영화차트</a>
+                <a href="/">객실</a>
             </li>
-
             <li>
-                <a href="/screen/map/">카카오맵/</a>
+                <a href="#">특별한 경험</a>
             </li>
-
             <li>
                 <a href="#">부대시설</a>
             </li>
-
             <li>
                 <a href="#">브랜드소개</a>
             </li>
-
             <li>
                 <a href="#">예약</a>
             </li>
-
         </ul>
 
-
         <div class="header-right">
-            {% if request.session.sessison_id %}
+            {% if request.session.session_id %}
             <a href="/member/logout/">로그아웃</a>
-            <a href="#">{{request.session.session_nickname}}</a>
+            <a href="#">{{request.session.session_nickname}}님</a>
             {% else %}
             <a href="/member/login/">로그인</a>
             <a href="/member/membership1/">회원가입</a>
             {% endif %}
             <a href="/admin/">관리자</a>
-
         </div>
-
     </div>
-
 </header>
 
 
