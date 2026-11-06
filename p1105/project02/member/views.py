@@ -21,3 +21,12 @@ def logout(request):
     request.session.clear()
     context = {'temp':2}
     return render(request, 'login.html', context)
+
+def membership1(request):
+    return render(request, 'membership1.html')
+
+def membership2(request):
+    return render(request, 'membership2.html')
+
+def membership3(request):
+    return render(request, 'membership3.html')
