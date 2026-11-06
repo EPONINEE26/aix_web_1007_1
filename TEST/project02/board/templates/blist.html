@@ -73,15 +73,15 @@
             {% for board in list %}
         <tr>
             <td class="number">{{board.bno}}</td>
-            <td class="subject"><a href="/board/bview/">{{board.btitle}}</a></td>
+            <td class="subject"><a href="/board/bview/{{board.bno}}/">{{board.btitle}}</a></td>
             <td>{{board.id}}</td>
-            <td>{{board.bdate | date:"Y-m-d H:i"}}/td>
+            <td>{{board.bdate | date:"Y-m-d"}}</td>
             <td>{{board.bhit}}</td>
         </tr>
             {% endfor %}
         {% else %}
             <tr>
-                <td ccolspan = '5' class="number">게시글이 없습니다.</td>
+                <td colspan = '5' class="number">게시글이 없습니다.</td>
             </tr>
         {% endif %}
 

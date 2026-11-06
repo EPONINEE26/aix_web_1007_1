@@ -72,7 +72,7 @@
                 <div class="post-info">
                     <span>FOREST</span>
                     <span>작성자 : {{board.id}}</span>
-                    <span>{{board.bdate | date: "Y-m-d"}}</span>
+                    <span>{{board.bdate|date:"Y-m-d"}}</span>
                     <span>조회수 : {{board.bhit}}</span>
                 </div>
             </div>
@@ -171,6 +171,7 @@
 
             <!-- RIGHT -->
             <div class="button-right">
+                <a href="/board/breply/{{board.bno}}/" class="btn">답변달기</a>
                 <a href="/board/bupdate/{{board.bno}}/" class="btn">수정</a>
                 <a onclick="deleteBtn()" style="cursor: pointer;" class="btn btn-delete">삭제</a>
             </div>

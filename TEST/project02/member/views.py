@@ -7,7 +7,7 @@ def login(request):
     elif request.method == "POST":
         id = request.POST.get('id')
         pw = request.POST.get('pw')
-        qs = Member.objects.filter(id=id,pw=pw)
+        qs = Member.objects.filter(id=id,pw=pw).first()
         if qs : 
             request.session['session_id'] = id
             request.session['session_nickname'] = qs.nickname
