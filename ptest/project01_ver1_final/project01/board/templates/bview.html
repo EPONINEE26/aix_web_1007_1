@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{# 변경: 게시판 화면의 상단 로고 문구 지정; 클릭 주소는 base.html의 index URL 사용 #}
+{% block header-logo-text %}게시판{% endblock header-logo-text %}
+{% load static %}
+
+{% block script-block %}
+<link rel="stylesheet" href="{% static 'css/bview.css' %}">
+<script>
+    // 로그인이 필요한 기능을 선택했을 때 안내하고 로그인 페이지로 보냅니다.
+    // 댓글 수정 버튼을 누르면 해당 댓글 번호의 수정 폼만 열거나 닫습니다.
+    // 예: 댓글 번호가 5이면 id="comment-edit-5"인 폼을 찾습니다.
+    function toggleCommentEdit(cno) {
+        const form = document.getElementById('comment-edit-' + cno);
+        if (!form) return;
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function loginCheck(){
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href='/member/login/';
+    }
+
+    // 아래 Django 조건이 로그인 여부를 판정합니다. false를 반환하면 링크 이동을 멈춥니다.
+    function loginMove(){
+        {% if not request.session.session_id %}
+        loginCheck();
+        return false;
+        {% endif %}
+        return true;
+    }
+
+
+    // =====================================================================
+    // 추가: 댓글 등록/수정 시 "글을 작성했는지" 검사하는 코드 (아래 함수 2개 전체가 새로 추가한 부분)
+    //
+    // [왜 필요한가]
+    // - 입력칸의 required 는 빈칸/줄바꿈만 적어도 "글이 있다"고 통과시킴
+    // - 그 결과 아무 내용 없는 댓글이 등록 완료처럼 처리되던 문제 발생
+    //
+    // [동작 순서]
+    // 1) 사용자가 댓글 등록(또는 수정 저장) 버튼 클릭
+    // 2) 아래 함수 실행 (버튼의 onclick 에서 호출)
+    // 3) 글이 없으면 알림창 표시 후 등록 중단 / 글이 있으면 등록 진행
+    //
+    // [용어 설명]
+    // - 함수(function) = 여러 줄의 코드에 이름을 붙여 묶어 둔 것 (이름을 불러야 실행)
+    // - 변수(var) = 값을 잠시 담아 두는 상자
+    // - if (조건) { } = 조건이 맞을 때만 중괄호 안의 코드 실행
+    // - return false = 함수 종료 + 등록 중단 / return true = 함수 종료 + 등록 계속 진행
+    // =====================================================================
+
+    // 추가: 댓글 등록 버튼용 검사 함수
+    function commentCheck(){
+
+        // 로그인 여부 먼저 확인 (기존에 있던 loginMove 함수 사용)
+        // - 로그인 안 한 상태면 loginMove 가 로그인 안내와 이동을 처리하고 false 를 돌려줌
+        // - ! = 반대로 뒤집는 기호 (false 일 때 조건 성립) → 이 경우 등록 중단
+        if(!loginMove()){ return false; }
+
+        // 댓글 입력칸 가져오기
+        // - document.querySelector('.comment-form textarea') = 화면에서 comment-form 안에 있는 글 입력칸(textarea)을 찾는 기능
+        // - var commentBox = 그 칸을 변수에 담아 두기
+        var commentBox = document.querySelector('.comment-form textarea');
+
+        // 글 작성 여부 검사
+        // - commentBox.value = 입력칸에 적혀 있는 글
+        // - trim() = 글자 앞뒤의 빈칸, 줄바꿈 제거
+        // - == '' = 아무 글자도 남지 않았는지 비교 (빈칸/줄바꿈만 입력한 경우도 해당)
+        if(commentBox.value.trim() == ''){
+            alert('글을 작성해야 등록이 됩니다.');       // 알림창 표시 (alert = 화면 가운데에 안내 창 띄우는 기능)
+            commentBox.focus();                  // 입력칸으로 커서 이동
+            return false;                        // 등록 중단 (서버로 아무것도 보내지 않음)
+        }
+
+        // 글이 있음 → 등록 계속 진행
+        return true;
+    }
+
+    // 추가: 댓글 수정 저장 버튼용 검사 함수
+    // - cno = 댓글 번호 (여러 댓글 중 어느 댓글의 수정칸인지 구분하는 번호)
+    function commentEditCheck(cno){
+
+        // 로그인 여부 확인 (위 함수와 동일)
+        if(!loginMove()){ return false; }
+
+        // 해당 번호 댓글의 수정 입력칸 가져오기
+        // - '#comment-edit-' + cno = "comment-edit-댓글번호" 라는 이름표(id)를 가진 수정 폼
+        // - 그 폼 안의 글 입력칸(textarea)을 찾아 변수에 담아 두기
+        var editBox = document.querySelector('#comment-edit-' + cno + ' textarea');
+
+        // 글 작성 여부 검사 (위 함수와 동일)
+        if(editBox.value.trim() == ''){
+            alert('글을 작성해야 등록이 됩니다.');
+            editBox.focus();
+            return false;
+        }
+
+        // 글이 있음 → 수정 저장 계속 진행
+        return true;
+    }
+
+</script>
+{% endblock script-block %}
+
+{% block content-block %}
+<section class="visual">
+    <div>
+        <h1>게시판</h1>
+        <p>게시판의 새 글을 확인하세요.</p>
+    </div>
+</section>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">HOME <span>&gt;</span> 게시판</div>
+        <div class="page-title"><h2>게시판</h2></div>
+
+        <article class="post">
+            <div class="post-header">
+                <h3>{{board.btitle}}</h3>
+                <div class="post-info">
+                    <span>작성자 : {{board.id}}</span>
+                    <span>{{board.bdate|date:'Y.m.d'}}</span>
+                    <span>조회수 : {{board.bhit}}</span>
+                </div>
+            </div>
+
+            <div class="post-content">{{board.bcontent|linebreaksbr}}</div>
+
+            {% if board.bfile %}
+            <div class="post-image"><img src="{{board.bfile.url}}" alt="{{board.btitle}}" style="display:block;width:100%;height:auto;"></div>
+            {% endif %}
+
+            <div class="post-navigation">
+                <a href="#"><div class="nav-title">이전글</div><div class="nav-content">새로운 객실 서비스 이용 안내</div><div class="nav-date">2026.09.10</div></a>
+                <a href="#"><div class="nav-title">다음글</div><div class="nav-content">자연 속에서 즐기는 특별한 휴식</div><div class="nav-date">2026.09.05</div></a>
+            </div>
+        </article>
+
+        <div class="button-area">
+            <div class="button-left"><a href="/board/blist/" class="btn btn-dark">목록</a></div>
+            <div class="button-right">
+                <a href="/board/breply/{{board.bno}}/" class="btn" onclick="return loginMove();">답변달기</a>
+                {% if request.session.session_id == board.id %}
+                <a href="{% url 'board:bupdate' board.bno %}" class="btn">수정</a>
+                <form data-ajax data-confirm="게시글을 삭제하시겠습니까?" method="post" action="{% url 'board:bdelete' board.bno %}" style="display:inline-block;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-delete">삭제</button>
+                </form>
+                {% else %}
+                <a href="{% url 'board:bupdate' board.bno %}" class="btn" onclick="{% if not request.session.session_id %}return loginMove();{% else %}alert('작성자만 수정할 수 있습니다.');return false;{% endif %}">수정</a>
+                <button type="button" class="btn btn-delete" onclick="{% if not request.session.session_id %}return loginMove();{% else %}alert('작성자만 삭제할 수 있습니다.');{% endif %}">삭제</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <section class="comments">
+            <h3 class="comments-title">댓글 <span class="comment-count">{{comments.count}}</span></h3>
+
+            <!-- 원본 참고 파일의 댓글 입력창: 내용과 작성자 이름, 댓글 등록 버튼 -->
+            <form data-ajax class="comment-form" method="post" action="{% url 'board:commWrite' board.bno %}" onsubmit="return loginMove();">
+                {% csrf_token %}
+                <textarea name="ccontent" placeholder="댓글을 입력하세요." required></textarea>
+                <div class="comment-form-bottom">
+                    <input class="comment-name" value="{{request.session.session_nickname}}" placeholder="작성자" readonly>
+                    {# 수정: 댓글 등록 버튼에 onclick="return commentCheck();" 추가 #}
+                    {# - 클릭 시 위쪽 script 의 commentCheck() 함수 실행 (글 작성 여부 검사) #}
+                    {# - 검사 결과가 false 이면 등록(전송) 자체가 취소됨 #}
+                    {# - 기존 코드(type="submit", class="comment-submit")는 그대로 유지 #}
+                    <button type="submit" class="comment-submit" onclick="return commentCheck();">댓글 등록</button>
+                </div>
+            </form>
+
+            <!-- 원본 HTML의 예시 댓글 3개는 모든 게시글 하단에서 볼 수 있습니다. -->
+            <!-- DB에 저장된 댓글을 출력하므로 등록/수정/삭제 후 다시 읽어도 상태가 유지됩니다. -->
+            <div class="comment-list">
+                {% for comment in comments %}
+                <div class="comment" id="comment-{{comment.cno}}">
+                    <div class="comment-header">
+                        <span class="comment-user">{% if comment.display_name %}{{comment.display_name}}{% else %}{{comment.member.nickname}}{% endif %}</span>
+                        <span class="comment-date">{{comment.cdate|date:'Y.m.d H:i'}}</span>
+                    </div>
+                    <div class="comment-text" style="white-space:pre-line;">{{comment.ccontent}}</div>
+                    <div class="comment-buttons">
+                        <!-- 원본에 있던 답글 버튼. 로그인 확인 후 댓글 입력창으로 이동합니다. -->
+                        <button type="button" onclick="if(loginMove()){document.querySelector('.comment-form textarea').focus();}">답글</button>
+                        <!-- 수정 버튼은 로그인 안내 후, 권한이 있는 댓글만 입력창을 엽니다. -->
+                        <button type="button" onclick="if(loginMove()){ {% if comment.is_example or request.session.session_id == comment.member_id %}toggleCommentEdit('{{comment.cno}}');{% else %}alert('작성자만 수정할 수 있습니다.');{% endif %} }">수정</button>
+                        <!-- 삭제 버튼은 로그인 안내 후 서버에 POST를 전송합니다. -->
+                        <button type="button" onclick="if(loginMove()){ {% if comment.is_example or request.session.session_id == comment.member_id %}document.getElementById('comment-delete-{{comment.cno}}').requestSubmit();{% else %}alert('작성자만 삭제할 수 있습니다.');{% endif %} }">삭제</button>
+                    </div>
+                    <form id="comment-edit-{{comment.cno}}" data-ajax method="post" action="{% url 'board:commUpdate' board.bno comment.cno %}" style="display:none;" onsubmit="return loginMove();">
+                        {% csrf_token %}
+                        <textarea name="ccontent" required>{{comment.ccontent}}</textarea>
+                        {# 수정: 수정 저장 버튼에 onclick="return commentEditCheck('댓글번호');" 추가 #}
+                        {# - 클릭 시 위쪽 script 의 commentEditCheck() 함수 실행 (글 작성 여부 검사) #}
+                        {# - {{comment.cno}} = 지금 반복 중인 댓글의 번호 (Django 가 실제 번호로 바꿔서 출력) #}
+                        <button type="submit" onclick="return commentEditCheck('{{comment.cno}}');">수정 저장</button>
+                        <button type="button" onclick="toggleCommentEdit('{{comment.cno}}')">취소</button>
+                    </form>
+                    <form id="comment-delete-{{comment.cno}}" data-ajax data-confirm="댓글을 삭제하시겠습니까?" method="post" action="{% url 'board:commDelete' board.bno comment.cno %}" style="display:none;" onsubmit="return loginMove();">
+                        {% csrf_token %}
+                    </form>
+                </div>
+                {% empty %}
+                <p>등록된 댓글이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock content-block %}

@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{# 변경: 게시판 화면의 상단 로고 문구 지정; 클릭 주소는 base.html의 index URL 사용 #}
+{% block header-logo-text %}게시판{% endblock header-logo-text %}
+{% load static %}
+{% block script-block %}
+<link rel="stylesheet" href="{% static 'css/bwrite.css' %}">
+<script>
+    // 추가: 답변 등록 버튼을 눌렀을 때 "글을 작성했는지" 검사하는 함수
+    // - 함수(function) = 여러 줄의 코드에 이름을 붙여 묶어 둔 것, 이름을 불러야 실행
+    // - 호출 위치 = 아래 등록 버튼의 onclick="return replyCheck();"
+    // - 결과 true  = 등록 계속 진행
+    // - 결과 false = 등록 중단 (전송 자체가 일어나지 않음)
+    function replyCheck(){
+        // 내용 입력칸(name="bcontent") 가져오기
+        // - getElementsByName = 같은 name 을 가진 칸들을 찾는 기능, [0] = 그중 첫 번째 칸
+        var content = document.getElementsByName('bcontent')[0];
+
+        // 검사 1 = 지금 적힌 글(value)이 처음에 자동으로 채워져 있던 글(defaultValue)과 똑같은지 비교
+        //          (똑같다 = 사용자가 새로 쓴 글이 하나도 없는 상태)
+        // 검사 2 = 입력칸이 완전히 비어 있는지 확인
+        // - trim() = 글자 앞뒤의 빈칸, 줄바꿈 제거
+        // - == = 같은지 비교, || = 둘 중 하나라도 맞으면 참
+        if(content.value.trim() == content.defaultValue.trim() || content.value.trim() == ''){
+            alert('글을 작성해야 등록이 됩니다.');   // alert = 알림창 표시
+            content.focus();                         // 내용 입력칸으로 커서 이동
+            return false;                            // 등록 중단
+        }
+        return true;                                 // 글이 있으면 등록 계속 진행
+    }
+</script>
+{% endblock script-block %}
+{% block content-block %}
+<section class="visual">
+<div>
+<h1>게시판</h1>
+<p>게시판의 새 글을 확인하세요.</p>
+</div>
+</section>
+
+
+<!-- =========================
+    CONTENT
+========================= -->
+
+<main>
+
+    <div class="container">
+
+
+        <!-- BREADCRUMB -->
+
+        <div class="breadcrumb">HOME &gt; 게시판 &gt; 답변달기</div>
+
+
+        <!-- PAGE TITLE -->
+
+        <div class="page-title">
+
+            <h2>답변달기</h2>
+
+        </div>
+
+
+        <!-- =========================
+            WRITE FORM
+        ========================= -->
+
+        <form data-ajax
+            class="write-form"
+            action="/board/breply/{{board.bno}}/"
+            method="post"
+            enctype="multipart/form-data"
+        >
+        {% csrf_token %}
+        {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+            <!-- TITLE -->
+            <!-- 답변달기에 필요한 컬럼 : bgroup,bstep,bindent -->
+            <div class="form-row">
+                <div class="form-label">
+                    제목
+                    <span class="required">
+                        *
+                    </span>
+
+                </div>
+
+
+                <div class="form-input">
+
+                    <input
+                        type="text"
+                        name="btitle"
+                        placeholder="제목을 입력하세요."
+                        required
+                        value='[답변] {{board.btitle}}'
+                    >
+                </div>
+
+            </div>
+
+
+            <!-- AUTHOR -->
+
+            <div class="form-row">
+
+                <div class="form-label">
+
+                    작성자
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </div>
+
+
+                <div class="form-input">
+
+                    <input type="text" class="author-input" value="{{ request.session.session_id }}" readonly>
+
+                </div>
+
+            </div>
+
+            <!-- CONTENT -->
+
+            <div class="form-row content-row">
+
+                <div class="form-label">
+
+                    내용
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </div>
+
+
+                <div class="form-input content-input">
+
+                    <textarea
+                        name="bcontent"
+                        placeholder="내용을 입력하세요."
+                        required
+                    >[ 답변 ] {{board.bcontent}}
+-------------------------------------------
+
+                </textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- FILE -->
+
+            <div class="form-row">
+
+                <div class="form-label">
+                    첨부파일
+                </div>
+
+
+                <div class="form-input file-input">
+
+                    <input
+                        type="file"
+                        name="bfile"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                BUTTON
+            ========================= -->
+
+            <div class="button-area">
+
+                <a href="/" class="btn">홈으로</a>
+                <a
+                    href="/board/blist/"
+                    class="btn btn-cancel"
+                >
+                    취소
+                </a>
+
+
+                {# 수정: onclick="return replyCheck();" 추가 (등록 버튼 클릭 시 글 작성 여부 검사, false 가 돌아오면 등록 중단) #}
+                <button type="submit" class="btn btn-dark" onclick="return replyCheck();">
+                    등록
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</main>
+{% endblock content-block %}

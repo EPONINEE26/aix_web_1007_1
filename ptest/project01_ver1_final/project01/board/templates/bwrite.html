@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{# 변경: 게시판 화면의 상단 로고 문구 지정; 클릭 주소는 base.html의 index URL 사용 #}
+{% block header-logo-text %}게시판{% endblock header-logo-text %}
+{% load static %}
+{% block script-block %}
+<link rel="stylesheet" href="{% static 'css/bwrite.css' %}">
+{% endblock script-block %}
+{% block content-block %}
+<section class="visual">
+<div>
+<h1>게시판</h1>
+<p>게시판의 새 글을 확인하세요.</p>
+</div>
+</section>
+
+
+<!-- =========================
+     CONTENT
+========================= -->
+
+<main>
+
+    <div class="container">
+
+
+        <!-- BREADCRUMB -->
+
+        <div class="breadcrumb">HOME &gt; 게시판 &gt; 글쓰기</div>
+
+
+        <!-- PAGE TITLE -->
+
+        <div class="page-title">
+
+            <h2>글쓰기</h2>
+
+        </div>
+
+
+        <!-- =========================
+             WRITE FORM
+        ========================= -->
+
+        <form data-ajax
+            class="write-form"
+            action="/board/bwrite/"
+            method="post"
+            enctype="multipart/form-data"  >
+        {% csrf_token %}
+        {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+
+
+            <!-- TITLE -->
+
+            <div class="form-row">
+
+                <div class="form-label">
+
+                    제목
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </div>
+
+
+                <div class="form-input">
+
+                    <input
+                        type="text"
+                        name="btitle"
+                        placeholder="제목을 입력하세요."
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- AUTHOR -->
+
+            <div class="form-row">
+
+                <div class="form-label">
+
+                    작성자
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </div>
+
+
+                <div class="form-input">
+
+                    <input type="text" class="author-input" value="{{ request.session.session_id }}" readonly>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONTENT -->
+
+            <div class="form-row content-row">
+
+                <div class="form-label">
+
+                    내용
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </div>
+
+
+                <div class="form-input content-input">
+
+                    <textarea
+                        name="bcontent"
+                        placeholder="내용을 입력하세요."
+                        required
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- FILE -->
+
+            <div class="form-row">
+
+                <div class="form-label">
+                    첨부파일
+                </div>
+
+
+                <div class="form-input file-input">
+
+                    <input
+                        type="file"
+                        name="bfile"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 BUTTON
+            ========================= -->
+
+            <div class="button-area">
+                <a href="/" class="btn">홈으로</a>
+                <a href="{% url 'board:blist' %}" class="btn btn-cancel">취소</a>
+                <button type="submit" class="btn btn-dark">등록</button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</main>
+{% endblock content-block %}

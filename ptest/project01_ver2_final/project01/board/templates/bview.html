@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{# 변경: 게시판 화면의 상단 로고 문구 지정; 클릭 주소는 base.html의 index URL 사용 #}
+{% block header-logo-text %}게시판{% endblock header-logo-text %}
+{% load static %}
+
+{% block script-block %}
+<link rel="stylesheet" href="{% static 'css/bview.css' %}">
+<!-- 추가: jQuery 불러오는 코드 -->
+<!-- - jQuery = $.ajax 를 쓰기 위해 필요한 도구 모음 (인터넷 주소에서 가져옴) -->
+<!-- - 아래 script 의 $.ajax 함수들이 사용하므로 반드시 아래 script 보다 먼저 작성 -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    // 로그인이 필요한 기능을 선택했을 때 안내하고 로그인 페이지로 보냅니다.
+    // 댓글 수정 버튼을 누르면 해당 댓글 번호의 수정 폼만 열거나 닫습니다.
+    // 예: 댓글 번호가 5이면 id="comment-edit-5"인 폼을 찾습니다.
+    function toggleCommentEdit(cno) {
+        const form = document.getElementById('comment-edit-' + cno);
+        if (!form) return;
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function loginCheck(){
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href='/member/login/';
+    }
+
+    // 아래 Django 조건이 로그인 여부를 판정합니다. false를 반환하면 링크 이동을 멈춥니다.
+    function loginMove(){
+        {% if not request.session.session_id %}
+        loginCheck();
+        return false;
+        {% endif %}
+        return true;
+    }
+
+    // =====================================================================
+    // 추가: $.ajax 사용 코드 모음 (아래 함수 5개 전부 추가한 코드)
+    //
+    // [$.ajax 란]
+    // - 화면 새로고침 없이 뒤에서 서버에 데이터를 보내고 결과를 받는 jQuery 기능
+    // - jQuery = 자바스크립트를 짧게 쓰게 해주는 도구 모음 (위쪽 script 태그에서 불러온 상태)
+    // - $ 기호 = jQuery 를 사용한다는 표시
+    //
+    // [용어 설명]
+    // - 함수(function) = 여러 줄의 코드에 이름을 붙여 묶어 둔 것, 이름을 불러야 실행
+    // - 변수(var) = 값을 잠시 담아 두는 상자
+    // - if (조건) { } = 조건이 맞을 때만 중괄호 안 코드 실행
+    // - return = 함수를 그 자리에서 종료
+    // =====================================================================
+
+    // 추가: $.ajax 가 실패했을 때 공통으로 사용하는 안내 함수
+    // - xhr = 서버의 오류 답변에 대한 정보 (xhr.status = 오류 번호)
+    function ajaxFail(xhr){
+        var msg = '요청을 처리하지 못했습니다.';          // 기본 안내 문구
+        if(xhr.status == 403){                            // 오류 번호 403 = 권한 없음 (남의 글/댓글 수정·삭제 시도)
+            msg = '작성자만 수정하거나 삭제할 수 있습니다.';
+        }
+        alert(msg);                                       // alert = 알림창 표시
+    }
+
+    // 추가: 댓글 등록 함수 (댓글 등록 버튼 클릭 시 실행)
+    function commentWrite(){
+        if(!loginMove()){ return; }                       // 로그인 안 한 상태면 로그인 안내 후 종료 (! = 반대로 뒤집기)
+        var ccontent = document.getElementById('comment-content').value.trim();   // 댓글 입력칸의 글자 가져오기 (trim = 앞뒤 빈칸 제거)
+        // 수정: 글 작성 여부 검사 - 안내 문구 변경
+        // - ccontent == '' = 입력한 글이 없는 상태 (빈칸/줄바꿈만 입력한 경우 포함, 위에서 trim 으로 빈칸 제거)
+        // - alert = 화면 가운데에 안내 창 띄우는 기능
+        // - 기존 문구 '댓글을 입력해 주세요.' → 새 문구 '글을 작성해야 등록이 됩니다.'
+        // - return = 이 함수를 여기서 종료 (아래 $.ajax 로 서버에 보내지 않음 = 등록 중단)
+        if(ccontent == ''){
+            alert('글을 작성해야 등록이 됩니다.');
+            return;
+        }
+        $.ajax({
+            url: "{% url 'board:commWrite' board.bno %}",   // 데이터를 보낼 서버 주소 (댓글 등록 주소)
+            type: "post",                                  // 전송 방식 (post = 주소창에 값을 드러내지 않고 보내는 방식)
+            data: {"ccontent": ccontent, "csrfmiddlewaretoken": "{{csrf_token}}"},   // 보낼 데이터 (댓글 내용 + Django 보안 확인 번호, 보안 번호가 없으면 서버가 요청 거부)
+            dataType: "json",                              // 서버 답변의 형식 (json = 글자로 된 데이터 묶음)
+            success: function(data){                       // 서버가 정상 답변을 줬을 때 실행
+                location.href = data.redirect_url;         // 서버가 알려준 주소로 화면 이동 (새 댓글이 보이는 상세 페이지)
+            },
+            error: function(xhr){                          // 서버가 오류 답변을 줬을 때 실행
+                ajaxFail(xhr);                             // 위에서 만든 공통 안내 함수 호출
+            }
+        });
+    }
+
+    // 추가: 댓글 수정 저장 함수 (수정 저장 버튼 클릭 시 실행)
+    // - cno = 댓글 번호 (어느 댓글인지 구분하는 번호)
+    function commentUpdate(cno){
+        if(!loginMove()){ return; }                       // 로그인 안 한 상태면 안내 후 종료
+        var ccontent = document.getElementById('comment-edit-text-' + cno).value.trim();   // 해당 번호 댓글의 수정칸 글자 가져오기
+        // 수정: 글 작성 여부 검사 - 안내 문구 변경 (위 commentWrite 함수와 동일한 방식)
+        // - 수정칸을 비운 채 수정 저장을 눌렀을 때 알림창 표시 후 저장 중단
+        // - 기존 문구 '댓글을 입력해 주세요.' → 새 문구 '글을 작성해야 등록이 됩니다.'
+        if(ccontent == ''){
+            alert('글을 작성해야 등록이 됩니다.');
+            return;
+        }
+        $.ajax({
+            url: "/board/commUpdate/{{board.bno}}/" + cno + "/",   // 서버 주소 (게시글 번호 + 댓글 번호를 이어 붙인 수정 주소)
+            type: "post",                                  // 전송 방식 (post)
+            data: {"ccontent": ccontent, "csrfmiddlewaretoken": "{{csrf_token}}"},   // 보낼 데이터 (수정한 댓글 내용 + 보안 확인 번호)
+            dataType: "json",                              // 서버 답변의 형식 (json)
+            success: function(data){                       // 정상 답변 시 실행
+                location.href = data.redirect_url;         // 서버가 알려준 주소로 화면 이동
+            },
+            error: function(xhr){                          // 오류 답변 시 실행
+                ajaxFail(xhr);                             // 공통 안내 함수 호출
+            }
+        });
+    }
+
+    // 추가: 댓글 삭제 함수 (댓글 삭제 버튼 클릭 시 실행)
+    // - cno = 댓글 번호
+    function commentDelete(cno){
+        if(!loginMove()){ return; }                       // 로그인 안 한 상태면 안내 후 종료
+        if(!confirm('댓글을 삭제하시겠습니까?')){ return; }   // 확인/취소 창 표시, 취소를 누르면 종료
+        $.ajax({
+            url: "/board/commDelete/{{board.bno}}/" + cno + "/",   // 서버 주소 (게시글 번호 + 댓글 번호를 이어 붙인 삭제 주소)
+            type: "post",                                  // 전송 방식 (post)
+            data: {"csrfmiddlewaretoken": "{{csrf_token}}"},   // 보낼 데이터 (삭제는 보안 확인 번호만 필요)
+            dataType: "json",                              // 서버 답변의 형식 (json)
+            success: function(data){                       // 정상 답변 시 실행
+                location.href = data.redirect_url;         // 서버가 알려준 주소로 화면 이동
+            },
+            error: function(xhr){                          // 오류 답변 시 실행
+                ajaxFail(xhr);                             // 공통 안내 함수 호출
+            }
+        });
+    }
+
+    // 추가: 게시글 삭제 함수 (게시글 삭제 버튼 클릭 시 실행)
+    function boardDelete(){
+        if(!confirm('게시글을 삭제하시겠습니까?')){ return; }   // 확인/취소 창 표시, 취소를 누르면 종료
+        $.ajax({
+            url: "{% url 'board:bdelete' board.bno %}",    // 서버 주소 (게시글 삭제 주소)
+            type: "post",                                  // 전송 방식 (post)
+            data: {"csrfmiddlewaretoken": "{{csrf_token}}"},   // 보낼 데이터 (보안 확인 번호)
+            dataType: "json",                              // 서버 답변의 형식 (json)
+            success: function(data){                       // 정상 답변 시 실행
+                location.href = data.redirect_url;         // 서버가 알려준 주소로 화면 이동 (게시글 목록)
+            },
+            error: function(xhr){                          // 오류 답변 시 실행
+                ajaxFail(xhr);                             // 공통 안내 함수 호출
+            }
+        });
+    }
+
+</script>
+{% endblock script-block %}
+
+
+{% block content-block %}
+<section class="visual">
+    <div>
+        <h1>게시판</h1>
+        <p>게시판의 새 글을 확인하세요.</p>
+    </div>
+</section>
+
+<main>
+    <div class="container">
+        <div class="breadcrumb">HOME <span>&gt;</span> 게시판</div>
+        <div class="page-title"><h2>게시판</h2></div>
+
+        <article class="post">
+            <div class="post-header">
+                <h3>{{board.btitle}}</h3>
+                <div class="post-info">
+                    <span>작성자 : {{board.id}}</span>
+                    <span>{{board.bdate|date:'Y.m.d'}}</span>
+                    <span>조회수 : {{board.bhit}}</span>
+                </div>
+            </div>
+
+            <div class="post-content">{{board.bcontent|linebreaksbr}}</div>
+
+            {% if board.bfile %}
+            <div class="post-image"><img src="{{board.bfile.url}}" alt="{{board.btitle}}" style="display:block;width:100%;height:auto;"></div>
+            {% endif %}
+
+            <div class="post-navigation">
+                <a href="#"><div class="nav-title">이전글</div><div class="nav-content">새로운 객실 서비스 이용 안내</div><div class="nav-date">2026.09.10</div></a>
+                <a href="#"><div class="nav-title">다음글</div><div class="nav-content">자연 속에서 즐기는 특별한 휴식</div><div class="nav-date">2026.09.05</div></a>
+            </div>
+        </article>
+
+        <div class="button-area">
+            <div class="button-left"><a href="/board/blist/" class="btn btn-dark">목록</a></div>
+            <div class="button-right">
+                <a href="/board/breply/{{board.bno}}/" class="btn" onclick="return loginMove();">답변달기</a>
+                {% if request.session.session_id == board.id %}
+                <a href="{% url 'board:bupdate' board.bno %}" class="btn">수정</a>
+                {# 수정: 기존 삭제 form(폼 전송 방식) 삭제 후 일반 버튼으로 교체 #}
+                {# - 버튼 클릭 시 위쪽 script 의 boardDelete() 함수 실행 (그 안의 $.ajax 로 삭제 요청 전송) #}
+                <button type="button" class="btn btn-delete" onclick="boardDelete()">삭제</button>
+                {% else %}
+                <a href="{% url 'board:bupdate' board.bno %}" class="btn" onclick="{% if not request.session.session_id %}return loginMove();{% else %}alert('작성자만 수정할 수 있습니다.');return false;{% endif %}">수정</a>
+                <button type="button" class="btn btn-delete" onclick="{% if not request.session.session_id %}return loginMove();{% else %}alert('작성자만 삭제할 수 있습니다.');{% endif %}">삭제</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <section class="comments">
+            <h3 class="comments-title">댓글 <span class="comment-count">{{comments.count}}</span></h3>
+
+            <!-- 원본 참고 파일의 댓글 입력창: 내용과 작성자 이름, 댓글 등록 버튼 -->
+            {# 수정: 폼 자체 전송 기능 제거 (data-ajax, action, method 삭제) #}
+            {# - 전송은 아래 등록 버튼의 commentWrite() 함수(위쪽 script)가 $.ajax 로 대신 처리 #}
+            {# - onsubmit="return false;" = 엔터 등으로 폼이 저절로 전송되는 동작 차단 #}
+            <form class="comment-form" onsubmit="return false;">
+                {% csrf_token %}
+                {# 수정: id="comment-content" 추가 (commentWrite 함수가 이 입력칸의 글자를 찾는 이름표), required 삭제 (입력 검사는 함수에서 처리) #}
+                <textarea id="comment-content" name="ccontent" placeholder="댓글을 입력하세요."></textarea>
+                <div class="comment-form-bottom">
+                    <input class="comment-name" value="{{request.session.session_nickname}}" placeholder="작성자" readonly>
+                    {# 수정: type="submit" → type="button", onclick 추가 (클릭 시 commentWrite() 실행) #}
+                    <button type="button" class="comment-submit" onclick="commentWrite()">댓글 등록</button>
+                </div>
+            </form>
+
+            <!-- 원본 HTML의 예시 댓글 3개는 모든 게시글 하단에서 볼 수 있습니다. -->
+            <!-- DB에 저장된 댓글을 출력하므로 등록/수정/삭제 후 다시 읽어도 상태가 유지됩니다. -->
+            <div class="comment-list">
+                {% for comment in comments %}
+                <div class="comment" id="comment-{{comment.cno}}">
+                    <div class="comment-header">
+                        <span class="comment-user">{% if comment.display_name %}{{comment.display_name}}{% else %}{{comment.member.nickname}}{% endif %}</span>
+                        <span class="comment-date">{{comment.cdate|date:'Y.m.d H:i'}}</span>
+                    </div>
+                    <div class="comment-text" style="white-space:pre-line;">{{comment.ccontent}}</div>
+                    <div class="comment-buttons">
+                        <!-- 원본에 있던 답글 버튼. 로그인 확인 후 댓글 입력창으로 이동합니다. -->
+                        <button type="button" onclick="if(loginMove()){document.querySelector('.comment-form textarea').focus();}">답글</button>
+                        <!-- 수정 버튼은 로그인 안내 후, 권한이 있는 댓글만 입력창을 엽니다. -->
+                        <button type="button" onclick="if(loginMove()){ {% if comment.is_example or request.session.session_id == comment.member_id %}toggleCommentEdit('{{comment.cno}}');{% else %}alert('작성자만 수정할 수 있습니다.');{% endif %} }">수정</button>
+                        <!-- 삭제 버튼은 로그인 안내 후 서버에 POST를 전송합니다. -->
+                        <button type="button" onclick="if(loginMove()){ {% if comment.is_example or request.session.session_id == comment.member_id %}commentDelete('{{comment.cno}}');{% else %}alert('작성자만 삭제할 수 있습니다.');{% endif %} }">삭제</button>
+                    </div>
+                    {# 수정: 폼 자체 전송 기능 제거 (data-ajax, action, method 삭제) #}
+                    {# - 전송은 아래 수정 저장 버튼의 commentUpdate() 함수가 $.ajax 로 대신 처리 #}
+                    <form id="comment-edit-{{comment.cno}}" style="display:none;" onsubmit="return false;">
+                        {% csrf_token %}
+                        {# 수정: id="comment-edit-text-댓글번호" 추가 (commentUpdate 함수가 해당 댓글의 수정칸을 찾는 이름표) #}
+                        <textarea id="comment-edit-text-{{comment.cno}}" name="ccontent">{{comment.ccontent}}</textarea>
+                        {# 수정: type="submit" → type="button", onclick 추가 (클릭 시 commentUpdate(댓글번호) 실행) #}
+                        <button type="button" onclick="commentUpdate('{{comment.cno}}')">수정 저장</button>
+                        <button type="button" onclick="toggleCommentEdit('{{comment.cno}}')">취소</button>
+                    </form>
+                    {# 삭제: 숨겨져 있던 댓글 삭제용 form 제거 #}
+                    {# - 삭제 요청은 commentDelete() 함수의 $.ajax 가 대신 처리 #}
+                </div>
+                {% empty %}
+                <p>등록된 댓글이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock content-block %}

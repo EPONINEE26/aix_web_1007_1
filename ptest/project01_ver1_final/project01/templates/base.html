@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/index.css"/>
+    <title>{% block page-title %}FOREST RESOM{% endblock %}</title>
+
+    {% block script-block %}
+    {% endblock script-block %}
+<style>
+/* 모든 페이지에서 상단 로고가 사라지거나 클릭되지 않도록 공통 헤더를 고정합니다. */
+header .header-inner {display:flex;align-items:center;justify-content:space-between;gap:18px;max-width:1250px;margin:auto;min-height:85px;padding:12px 22px;flex-wrap:wrap;}
+header .logo {display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:100!important;white-space:nowrap;}
+header .logo a.brand-home {display:inline-block!important;visibility:visible!important;opacity:1!important;color:#202020!important;text-decoration:none!important;font-size:26px!important;font-weight:700!important;pointer-events:auto!important;}
+header .main-menu {display:flex;gap:18px;flex-wrap:wrap;list-style:none;}
+header .header-right {display:flex;gap:12px;align-items:center;}
+{# 추가: 게시판 페이지에서만 아래 스타일 적용하는 조건문 #}
+{# - request.path = 지금 접속한 주소 (예: /board/blist/) #}
+{# - '/board/' in request.path = 주소 안에 /board/ 글자가 들어 있는지 검사 (게시판 페이지에서만 참) #}
+{# - 메인, 로그인 화면은 주소에 /board/ 가 없어서 적용 제외 #}
+{% if '/board/' in request.path %}
+/* 추가: 게시판 페이지 왼쪽 상단 글자(게시판) 모양 변경 */
+/* - color:#fff = 글자색 흰색 */
+/* - font-size:34px = 글자 크기 34px (기존 26px 보다 크게) */
+/* - text-shadow = 글자 뒤 옅은 그림자 (배경이 밝아도 글자가 보이게 하는 용도) */
+/* - !important = 위쪽의 기존 설정(검정색, 26px)보다 이 설정을 우선 적용하는 표시 */
+/* - 클릭 이동 기능(href)과 무관, 글자 모양만 변경 */
+header .logo a.brand-home {color:#fff!important;font-size:34px!important;text-shadow:0 1px 4px rgba(0,0,0,.45);}
+{% endif %}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="header-inner">
+
+        <div class="logo">
+            {# 변경: 상단 로고 클릭 시 index URL로 이동; 페이지별 글자는 header-logo-text 블록에서 지정 #}
+            <a href="{% url 'index' %}" class="brand-home">{% block header-logo-text %}FOREST RESOM{% endblock header-logo-text %}</a>
+        </div>
+
+        <ul class="main-menu">
+            <li><a href="#">스파</a></li>
+            <li><a href="#">객실</a></li>
+            <li><a href="#">특별한 경험</a></li>
+            <li><a href="#">부대시설</a></li>
+            <li><a href="#">브랜드소개</a></li>
+            <li><a href="#">예약</a></li>
+            <!-- 변경: 기존 문의 메뉴를 게시판으로 교체; 클릭 시 게시판 목록으로 이동 -->
+            <li><a href="/board/blist/">게시판</a></li>
+        </ul>
+
+        <div class="header-right">
+            {% if request.session.session_id %}
+                <a href="/member/logout/">로그아웃</a>
+                <a href="#">{{request.session.session_nickname}}님</a>
+            {% else %}
+                <a href="/member/login/">로그인</a>
+                <a href="/member/membership1/">회원가입</a>
+            {% endif %}
+            <a href="/admin/">관리자</a>
+        </div>
+
+    </div>
+</header>
+
+<!-- 페이지별 내용 -->
+{% block content-block %}
+{% endblock content-block %}
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+
+        <div class="footer-logo">
+            FOREST RESOM
+        </div>
+
+        <div class="footer-menu">
+            <a href="#">회사소개</a>
+            <a href="#">오시는 길</a>
+            <a href="#">개인정보처리방침</a>
+            <a href="#">이용약관</a>
+            <a href="#">이메일무단수집거부</a>
+        </div>
+
+        <div class="footer-info">
+            포레스트 리솜<br>
+            충청북도 제천시 백운면 금봉로 365<br>
+            대표번호 : 043-649-6000
+            &nbsp;&nbsp;
+            예약문의 : 1600-0060<br>
+            단체문의 : 02-6177-5999
+            &nbsp;&nbsp;
+            분양문의 : 02-567-5555
+        </div>
+
+        <div class="copyright">
+            COPYRIGHT © FOREST RESOM.
+            ALL RIGHTS RESERVED.
+        </div>
+
+    </div>
+</footer>
+
+<!-- 추가: jQuery 불러오는 코드 -->
+<!-- - jQuery = $.ajax 를 쓰기 위해 필요한 도구 모음 (인터넷 주소에서 가져옴) -->
+<!-- - 아래 forms.js 가 jQuery 를 사용하므로 반드시 forms.js 보다 먼저 작성 -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/forms.js' %}"></script>
+</body>
+</html>

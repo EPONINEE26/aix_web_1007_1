@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{# 변경: 게시판 화면의 상단 로고 문구 지정; 클릭 주소는 base.html의 index URL 사용 #}
+{% block header-logo-text %}게시판{% endblock header-logo-text %}
+{% load static %}
+
+{% block script-block %}
+<link rel="stylesheet" href="/static/css/blist.css">
+{% endblock script-block %}
+
+{% block content-block %}
+
+<!-- VISUAL -->
+<section class="visual">
+    <div>
+        <h1>게시판</h1>
+        <p>게시판의 새 글을 확인하세요.</p>
+    </div>
+</section>
+
+<!-- CONTENT -->
+<main>
+    <div class="container">
+
+        <div class="breadcrumb">
+            HOME <span>&gt;</span> 게시판
+        </div>
+
+        <div class="title">
+            <h2>게시판</h2>
+            <p>제목을 누르면 글을 읽을 수 있습니다.</p>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="search">
+            <select>
+                <option>제목</option>
+                <option>내용</option>
+                <option>전체</option>
+            </select>
+            <input placeholder="검색어를 입력하세요." type="text"/>
+            <button>검색</button>
+        </div>
+
+        <!-- NEWS LIST -->
+        <div class="board-wrap">
+            <table class="board-table">
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>작성일</th>
+                        <th>조회수</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% if list %}
+                        {% for board in list %}
+                        <tr>
+                            <td class="number">{{board.bno}}</td>
+                            <td class="subject">
+                                {% if board.bindent > 0 %}↳ {% endif %}<a href="/board/bview/{{board.bno}}/">{{board.btitle}}</a>
+                            </td>
+                            <td>{{board.id}}</td>
+                            <td>{{board.bdate | date:"Y-m-d"}}</td>
+                            <td>{{board.bhit}}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="number">게시글이 없습니다.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- WRITE BUTTON -->
+        <div class="write-area">
+            <a class="write-btn" href="{% url 'board:bwrite' %}" {% if not request.session.session_id %}onclick="alert('로그인이 필요한 서비스입니다.');window.location.href='{% url 'member:login' %}';return false;"{% endif %}>글쓰기</a>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination">
+            <a href="#">«</a>
+            <a href="#">‹</a>
+            <a class="active" href="#">1</a>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">4</a>
+            <a href="#">5</a>
+            <a href="#">›</a>
+            <a href="#">»</a>
+        </div>
+
+    </div>
+</main>
+
+{% endblock content-block %}
