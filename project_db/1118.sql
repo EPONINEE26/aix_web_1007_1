@@ -92,5 +92,44 @@ select salary from employees where salary in(3000,4000,6000);
 select emp_name, employee_id from employees where employee_id>=150 and employee_id<=200;
 select employee_id from employees;
 desc employees;
-select emp_name, employee_id from employees where employee_id<=130 or employee_id<=180;
+select emp_name, employee_id from employees where employee_id<=130 or employee_id>=180;
 select emp_name, employee_id from employees where employee_id in (100,130,140,150);
+
+select * from employees;
+select * from employees where email = 'DOCONNEL'; -- 값은 대소문자를 구별하고, 나머지 명령어는 대소문자를 구별하지 않음
+SELECT * FROM EMPLOYEES WHERE EMAIL = 'DOCONNEL';
+-- 문자 검색 = 만 가능 
+select * from employees where emp_name = 'Donald O''Connell'; 
+
+--날짜 검색. 날짜 형태는 형태지정은 없음
+select * from employees where hire_date <='2005/01/01';
+select * from employees where hire_date <='05-01-01';
+
+-- 110,130,140,150 번 사원번호가 아닌 사원을 출력하시오
+select employee_id from employees where employee_id not in (110,130,140,150);
+
+-- 급여가 5000~7000 사이 또는 8000,9000인 사원을 출력하시오.
+-- 묶음으로 묶어서 실행
+select * from employees where (salary<=5000 and salary>=7000) or salary in (8000,9000);
+-- 직급이 manager이면서 부서번호 50번인 사원을 출력하시오
+select job_id from employees;
+select * from employees;
+
+-- like : 포함된 것
+select employee_id, job_id, department_id from employees;
+select job_id from employees where job_id like '%MAN%' and department_id=50;
+select employee_id, job_id, department_id from employees where job_id like '%MAN%' and department_id=50;
+
+-- 100번부터 109번까지 출력하시오
+select * from employees order by employee_id;
+select * from employees order by employee_id;
+select * from employees where employee_id>=100 and employee_id<=190 order by employee_id ;
+select * from employees where employee_id between 100 and 190;
+
+-- 사원번호 130~140번 / 170~180번까지 출력하시오
+select * from employees where (employee_id>=130 and employee_id<=140) or (employee_id>=170 and employee_id<=180);
+select * from employees where employee_id between 130 and 140 or employee_id between 170 and 180;
+
+
+
+
